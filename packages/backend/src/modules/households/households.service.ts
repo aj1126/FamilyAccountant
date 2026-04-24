@@ -24,7 +24,7 @@ export class HouseholdsService {
     return this.repo.findOneBy({ id });
   }
 
-  async getMembers(householdId: string, requesterId: string) {
+  async getHousehold(householdId: string, requesterId: string) {
     const household = await this.findById(householdId);
     if (!household || household.ownerId !== requesterId) {
       throw new ForbiddenException();

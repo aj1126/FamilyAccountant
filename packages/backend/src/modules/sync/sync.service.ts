@@ -13,6 +13,7 @@ export class SyncService {
 
   async sync(
     householdId: string,
+    userId: string,
     payload: SyncPayload,
   ): Promise<{ transactions: TransactionEntity[]; syncedAt: string }> {
     for (const incoming of payload.transactions) {
@@ -27,7 +28,7 @@ export class SyncService {
             localId: incoming.localId,
             accountId: incoming.accountId,
             householdId,
-            userId: incoming.id,
+            userId,
             amount: incoming.amount,
             currency: incoming.currency,
             description: incoming.description,

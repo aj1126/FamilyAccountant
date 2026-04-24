@@ -37,8 +37,16 @@ export class AuthService {
     return this.issueTokens(user.id, user.email);
   }
 
-  async refresh(userId: string) {
-    const user = await this.usersService.findById(userId);
+  async refresh(refreshToken: string) {
+    let payload: { sub: string; email: string };
+    try {
+      payload = this.jwtService.verify(refreshToken, {
+        secret: this.configService.getOrThrow('JWT_REFRESH_SECRET'),
+      });
+    } catch {
+      throw new UnauthorizedException('Invalid or expired refresh token');
+    }
+    const user = await this.usersService.findById(payload.sub);
     if (!user) throw new UnauthorizedException();
     return this.issueTokens(user.id, user.email);
   }

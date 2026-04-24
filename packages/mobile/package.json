@@ -11,6 +11,7 @@
   "dependencies": {
     "@family-accountant/shared": "workspace:*",
     "@tanstack/react-query": "^5.37.1",
+    "axios": "^1.7.2",
     "expo": "~51.0.8",
     "expo-router": "~3.5.14",
     "expo-sqlite": "~14.0.3",
@@ -18,12 +19,14 @@
     "expo-status-bar": "~1.12.1",
     "react": "18.2.0",
     "react-native": "0.74.2",
+    "uuid": "^9.0.1",
     "zustand": "^4.5.2"
   },
   "devDependencies": {
     "@babel/core": "^7.24.5",
     "@types/react": "~18.2.79",
     "@types/react-native": "^0.73.0",
+    "@types/uuid": "^9.0.8",
     "typescript": "^5.4.5"
   }
 }

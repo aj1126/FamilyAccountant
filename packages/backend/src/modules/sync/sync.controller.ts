@@ -15,6 +15,6 @@ export class SyncController {
 
   @Post()
   sync(@CurrentUser() user: UserEntity, @Body() payload: SyncPayload) {
-    return this.syncService.sync(user.householdId!, payload);
+    return this.syncService.sync(user.householdId!, user.id, payload);
   }
 }

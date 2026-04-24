@@ -6,7 +6,7 @@
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
     "noEmit": true,
-    "moduleResolution": "bundler"
+    "moduleResolution": "node"
   },
   "include": ["**/*.ts", "**/*.tsx"]
 }

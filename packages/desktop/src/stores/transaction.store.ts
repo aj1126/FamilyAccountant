@@ -54,7 +54,6 @@ export const useTransactionStore = create<TransactionState>((set, get) => ({
       await window.electronAPI.updateSyncStatus(serverTx.id, 'synced');
     }
 
-    await window.electronAPI.updateSyncStatus('*pending*', 'synced');
     await get().loadFromDb();
   },
 }));

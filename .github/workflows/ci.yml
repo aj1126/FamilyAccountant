@@ -9,6 +9,8 @@ on:
 jobs:
   lint:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v2
@@ -23,6 +25,8 @@ jobs:
 
   build-shared:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v2
@@ -37,6 +41,8 @@ jobs:
 
   build-backend:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     needs: build-shared
     steps:
       - uses: actions/checkout@v4
@@ -52,6 +58,8 @@ jobs:
 
   test-backend:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     needs: build-backend
     services:
       postgres:

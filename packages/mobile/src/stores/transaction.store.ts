@@ -67,9 +67,15 @@ export const useTransactionStore = create<TransactionState>((set, get) => ({
       );
     }
 
-    await db.runAsync(
-      "UPDATE transactions SET syncStatus = 'synced' WHERE syncStatus = 'pending'",
+    const syncedLocalIds = new Set(
+      (data.transactions as Transaction[]).map((t) => t.localId),
     );
+    for (const localId of syncedLocalIds) {
+      await db.runAsync(
+        "UPDATE transactions SET syncStatus = 'synced' WHERE localId = ?",
+        [localId],
+      );
+    }
 
     await get().loadFromDb();
   },
