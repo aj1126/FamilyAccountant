@@ -21,9 +21,9 @@ jobs:
           node-version: '20'
           cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
-      - run: pnpm lint
+      - run: pnpm turbo run lint
 
-  build-shared:
+  build:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -37,50 +37,13 @@ jobs:
           node-version: '20'
           cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @family-accountant/shared build
-
-  build-backend:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    needs: build-shared
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 9
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'pnpm'
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @family-accountant/backend build
+      - run: pnpm turbo run build --filter=@family-accountant/shared --filter=@family-accountant/backend
 
   test-backend:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-    needs: build-backend
-    services:
-      postgres:
-        image: postgres:15-alpine
-        env:
-          POSTGRES_USER: fa_user
-          POSTGRES_PASSWORD: fa_pass
-          POSTGRES_DB: family_accountant_test
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-    env:
-      DATABASE_URL: postgresql://fa_user:fa_pass@localhost:5432/family_accountant_test
-      JWT_SECRET: test_jwt_secret
-      JWT_EXPIRES_IN: 15m
-      JWT_REFRESH_SECRET: test_refresh_secret
-      JWT_REFRESH_EXPIRES_IN: 7d
+    needs: build
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v2
@@ -90,5 +53,20 @@ jobs:
         with:
           node-version: '20'
           cache: 'pnpm'
+      # Starts the PostgreSQL instance that is pre-installed on GitHub-hosted
+      # ubuntu runners — no Docker or virtualization needed.
+      - name: Start PostgreSQL
+        run: |
+          sudo systemctl start postgresql.service
+          sudo -u postgres psql -c "CREATE USER fa_user WITH PASSWORD 'fa_pass';"
+          sudo -u postgres psql -c "CREATE DATABASE family_accountant_test OWNER fa_user;"
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @family-accountant/backend test
+      - name: Run backend tests
+        env:
+          DATABASE_URL: postgresql://fa_user:fa_pass@localhost:5432/family_accountant_test
+          JWT_SECRET: test_jwt_secret
+          JWT_EXPIRES_IN: 15m
+          JWT_REFRESH_SECRET: test_refresh_secret
+          JWT_REFRESH_EXPIRES_IN: 7d
+        run: pnpm turbo run test --filter=@family-accountant/backend
+

@@ -13,3 +13,6 @@ android/
 ios/
 out/
 release/
+
+# Turborepo
+.turbo/
