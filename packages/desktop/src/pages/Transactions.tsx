@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useTransactionStore } from '../stores/transaction.store';
+import { useAuthStore } from '../stores/auth.store';
 import { SyncStatusBadge } from '../components/SyncStatusBadge';
 import Papa from 'papaparse';
 import { Transaction } from '@family-accountant/shared';
 
 export function Transactions() {
   const { transactions, loadFromDb, addTransaction } = useTransactionStore();
+  const householdId = useAuthStore((s) => s.householdId);
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('');
@@ -21,11 +23,11 @@ export function Transactions() {
 
   const handleAdd = async () => {
     const parsed = parseFloat(amount);
-    if (!description || isNaN(parsed)) return;
+    if (!description || isNaN(parsed) || !householdId) return;
     await addTransaction({
       localId: `local-${Date.now()}`,
-      accountId: 'default',
-      householdId: 'default',
+      accountId: undefined,
+      householdId,
       amount: parsed,
       currency: 'USD',
       description,

@@ -51,7 +51,7 @@ export const useTransactionStore = create<TransactionState>((set, get) => ({
     const { data } = await apiClient.post('/sync', { transactions: pending, lastSyncedAt });
 
     for (const serverTx of data.transactions as Transaction[]) {
-      await window.electronAPI.updateSyncStatus(serverTx.id, 'synced');
+      await window.electronAPI.updateSyncStatus(serverTx.localId, 'synced');
     }
 
     await get().loadFromDb();

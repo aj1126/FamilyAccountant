@@ -61,6 +61,6 @@ export class AuthService {
       secret: this.configService.getOrThrow('JWT_REFRESH_SECRET'),
       expiresIn: this.configService.get('JWT_REFRESH_EXPIRES_IN', '7d'),
     });
-    return { accessToken, refreshToken };
+    return { accessToken, refreshToken, userId };
   }
 }

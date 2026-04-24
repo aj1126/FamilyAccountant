@@ -3,7 +3,7 @@ export type SyncStatus = 'synced' | 'pending' | 'error';
 export interface Transaction {
   id: string;
   localId: string;
-  accountId: string;
+  accountId?: string;
   householdId: string;
   amount: number;
   currency: string;

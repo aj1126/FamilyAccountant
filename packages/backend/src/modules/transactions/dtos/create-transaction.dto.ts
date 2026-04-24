@@ -5,7 +5,8 @@ export class CreateTransactionDto {
   localId!: string;
 
   @IsUUID()
-  accountId!: string;
+  @IsOptional()
+  accountId?: string;
 
   @IsNumber()
   amount!: number;

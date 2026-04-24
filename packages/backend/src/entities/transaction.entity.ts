@@ -18,8 +18,8 @@ export class TransactionEntity {
   @Column({ unique: true })
   localId!: string;
 
-  @Column({ type: 'uuid' })
-  accountId!: string;
+  @Column({ type: 'uuid', nullable: true })
+  accountId: string | null;
 
   @Column({ type: 'uuid' })
   householdId!: string;
@@ -27,7 +27,15 @@ export class TransactionEntity {
   @Column({ type: 'uuid' })
   userId!: string;
 
-  @Column({ type: 'decimal', precision: 15, scale: 2 })
+  @Column({
+    type: 'decimal',
+    precision: 15,
+    scale: 2,
+    transformer: {
+      to: (value: number) => value,
+      from: (value: string | number) => Number(value),
+    },
+  })
   amount!: number;
 
   @Column({ default: 'USD' })

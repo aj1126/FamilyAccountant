@@ -20,7 +20,15 @@ export class DebtEntity {
   @Column({ type: 'uuid' })
   debtorId!: string;
 
-  @Column({ type: 'decimal', precision: 15, scale: 2 })
+  @Column({
+    type: 'decimal',
+    precision: 15,
+    scale: 2,
+    transformer: {
+      to: (value: number) => value,
+      from: (value: string | number) => Number(value),
+    },
+  })
   amount!: number;
 
   @Column({ default: 'USD' })

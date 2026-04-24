@@ -49,7 +49,7 @@ describe('SyncService', () => {
     mockRepo.save.mockResolvedValue(mockTx);
     mockRepo.find.mockResolvedValue([mockTx]);
 
-    const result = await service.sync('hh-1', {
+    const result = await service.sync('hh-1', 'user-1', {
       transactions: [
         {
           ...mockTx,
@@ -73,7 +73,7 @@ describe('SyncService', () => {
     mockRepo.find.mockResolvedValue([]);
     mockRepo.save.mockResolvedValue(mockTx);
 
-    await service.sync('hh-1', {
+    await service.sync('hh-1', 'user-1', {
       transactions: [
         {
           ...mockTx,

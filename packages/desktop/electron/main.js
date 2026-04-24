@@ -80,6 +80,6 @@ ipcMain.handle('db:addTransaction', (_event, tx) => {
   return tx;
 });
 
-ipcMain.handle('db:updateSyncStatus', (_event, id, status) => {
-  db.prepare('UPDATE transactions SET syncStatus = ? WHERE id = ?').run(status, id);
+ipcMain.handle('db:updateSyncStatus', (_event, localId, status) => {
+  db.prepare('UPDATE transactions SET syncStatus = ? WHERE localId = ?').run(status, localId);
 });

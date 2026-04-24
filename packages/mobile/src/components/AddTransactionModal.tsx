@@ -9,6 +9,7 @@ import {
   Alert,
 } from 'react-native';
 import { useTransactionStore } from '../stores/transaction.store';
+import { useAuthStore } from '../stores/auth.store';
 import { v4 as uuidv4 } from 'uuid';
 
 interface Props {
@@ -21,6 +22,7 @@ export function AddTransactionModal({ visible, onClose }: Props) {
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('');
   const addTransaction = useTransactionStore((s) => s.addTransaction);
+  const householdId = useAuthStore((s) => s.householdId);
 
   const handleSubmit = async () => {
     const parsedAmount = parseFloat(amount);
@@ -28,12 +30,16 @@ export function AddTransactionModal({ visible, onClose }: Props) {
       Alert.alert('Validation', 'Please enter a description and valid amount');
       return;
     }
+    if (!householdId) {
+      Alert.alert('No Household', 'Please join or create a household first');
+      return;
+    }
 
     try {
       await addTransaction({
         localId: uuidv4(),
-        accountId: 'default',
-        householdId: 'default',
+        accountId: undefined,
+        householdId,
         amount: parsedAmount,
         currency: 'USD',
         description,
