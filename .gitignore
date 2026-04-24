@@ -1,0 +1,15 @@
+node_modules/
+dist/
+build/
+.env
+*.env.local
+*.log
+.DS_Store
+coverage/
+.nyc_output/
+*.tsbuildinfo
+.expo/
+android/
+ios/
+out/
+release/
