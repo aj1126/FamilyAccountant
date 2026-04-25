@@ -29,6 +29,10 @@ describe('SyncService', () => {
     create: jest.fn(),
   };
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   beforeEach(async () => {
     jest.clearAllMocks();
     const module: TestingModule = await Test.createTestingModule({

@@ -116,3 +116,5 @@ Swagger UI is available at `http://localhost:3000/api/docs` when the backend is 
 
 - **Current Phase:** Monorepo scaffold complete — backend entities, auth, CRUD modules, and sync endpoint are defined.
 - **Next Steps:** Run database migrations, implement mobile UI screens, implement desktop UI.
+
+See [CHANGELOG.md](./CHANGELOG.md) for a detailed history of all changes.
