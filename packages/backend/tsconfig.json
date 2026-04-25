@@ -5,8 +5,9 @@
     "rootDir": "src",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
+    "baseUrl": ".",
     "paths": {
-      "@family-accountant/shared": ["packages/shared/dist/index"]
+      "@family-accountant/shared": ["../shared/dist/index"]
     }
   },
   "include": ["src"]
