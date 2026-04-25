@@ -24,17 +24,17 @@ export class TransactionsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.transactionsService.findOne(id);
+  findOne(@Param('id') id: string, @CurrentUser() user: UserEntity) {
+    return this.transactionsService.findOne(id, user.householdId!);
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() dto: Partial<CreateTransactionDto>) {
-    return this.transactionsService.update(id, dto);
+  update(@Param('id') id: string, @CurrentUser() user: UserEntity, @Body() dto: Partial<CreateTransactionDto>) {
+    return this.transactionsService.update(id, user.householdId!, dto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.transactionsService.softDelete(id);
+  remove(@Param('id') id: string, @CurrentUser() user: UserEntity) {
+    return this.transactionsService.softDelete(id, user.householdId!);
   }
 }

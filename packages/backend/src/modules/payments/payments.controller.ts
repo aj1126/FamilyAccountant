@@ -19,12 +19,12 @@ export class PaymentsController {
   }
 
   @Get('debt/:debtId')
-  findByDebt(@Param('debtId') debtId: string) {
-    return this.paymentsService.findByDebt(debtId);
+  findByDebt(@Param('debtId') debtId: string, @CurrentUser() user: UserEntity) {
+    return this.paymentsService.findByDebt(debtId, user.householdId!);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.paymentsService.findOne(id);
+  findOne(@Param('id') id: string, @CurrentUser() user: UserEntity) {
+    return this.paymentsService.findOne(id, user.householdId!);
   }
 }
