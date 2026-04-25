@@ -136,6 +136,14 @@ describe('SyncService', () => {
         where: expect.objectContaining({ householdId: 'd1b2c3d4-0000-0000-0000-000000000004' }),
       }),
     );
+
+    const findCallArg = mockRepo.find.mock.calls[0][0];
+    expect(findCallArg.where.updatedAt).toEqual(
+      expect.objectContaining({
+        _type: 'moreThan',
+        _value: new Date('2024-03-01T00:00:00Z'),
+      }),
+    );
     expect(result.syncedAt).toBeDefined();
   });
 
