@@ -55,6 +55,5 @@ export class SyncQueue {
 
   clear(): void {
     this.queue = [];
-    this.running = false;
   }
 }

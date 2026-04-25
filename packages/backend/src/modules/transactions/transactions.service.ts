@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { TransactionEntity } from '../../entities/transaction.entity';
@@ -24,18 +24,22 @@ export class TransactionsService {
     return this.repo.findBy({ householdId });
   }
 
-  async findOne(id: string): Promise<TransactionEntity> {
+  async findOne(id: string, householdId: string): Promise<TransactionEntity> {
     const tx = await this.repo.findOneBy({ id });
     if (!tx) throw new NotFoundException('Transaction not found');
+    if (householdId == null) throw new ForbiddenException('Access denied');
+    if (tx.householdId !== householdId) throw new ForbiddenException('Access denied');
     return tx;
   }
 
-  async update(id: string, dto: Partial<CreateTransactionDto>): Promise<TransactionEntity> {
+  async update(id: string, householdId: string, dto: Partial<CreateTransactionDto>): Promise<TransactionEntity> {
+    await this.findOne(id, householdId);
     await this.repo.update(id, dto);
-    return this.findOne(id);
+    return this.findOne(id, householdId);
   }
 
-  async softDelete(id: string): Promise<void> {
+  async softDelete(id: string, householdId: string): Promise<void> {
+    await this.findOne(id, householdId);
     await this.repo.softDelete(id);
   }
 }

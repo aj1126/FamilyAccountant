@@ -24,12 +24,12 @@ export class DebtsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.debtsService.findOne(id);
+  findOne(@Param('id') id: string, @CurrentUser() user: UserEntity) {
+    return this.debtsService.findOne(id, user.householdId!);
   }
 
   @Patch(':id/settle')
-  settle(@Param('id') id: string) {
-    return this.debtsService.settle(id);
+  settle(@Param('id') id: string, @CurrentUser() user: UserEntity) {
+    return this.debtsService.settle(id, user.householdId!);
   }
 }

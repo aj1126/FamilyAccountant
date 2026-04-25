@@ -19,7 +19,7 @@ export class HouseholdsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.householdsService.findById(id);
+  findOne(@Param('id') id: string, @CurrentUser() user: UserEntity) {
+    return this.householdsService.getHousehold(id, user.id);
   }
 }

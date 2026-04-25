@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { DebtEntity } from '../../entities/debt.entity';
@@ -20,14 +20,17 @@ export class DebtsService {
     return this.repo.findBy({ householdId });
   }
 
-  async findOne(id: string): Promise<DebtEntity> {
+  async findOne(id: string, householdId: string): Promise<DebtEntity> {
     const debt = await this.repo.findOneBy({ id });
     if (!debt) throw new NotFoundException('Debt not found');
+    if (householdId == null) throw new ForbiddenException('Access denied');
+    if (debt.householdId !== householdId) throw new ForbiddenException('Access denied');
     return debt;
   }
 
-  async settle(id: string): Promise<DebtEntity> {
+  async settle(id: string, householdId: string): Promise<DebtEntity> {
+    await this.findOne(id, householdId);
     await this.repo.update(id, { settled: true });
-    return this.findOne(id);
+    return this.findOne(id, householdId);
   }
 }

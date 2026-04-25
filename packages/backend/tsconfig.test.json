@@ -1,0 +1,8 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "paths": {
+      "@family-accountant/shared": ["../shared/src/index"]
+    }
+  }
+}

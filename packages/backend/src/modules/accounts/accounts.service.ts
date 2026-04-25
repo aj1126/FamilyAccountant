@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AccountEntity } from '../../entities/account.entity';
@@ -20,18 +20,22 @@ export class AccountsService {
     return this.repo.findBy({ householdId });
   }
 
-  async findOne(id: string): Promise<AccountEntity> {
+  async findOne(id: string, householdId: string): Promise<AccountEntity> {
     const account = await this.repo.findOneBy({ id });
     if (!account) throw new NotFoundException('Account not found');
+    if (householdId == null) throw new ForbiddenException('Access denied');
+    if (account.householdId !== householdId) throw new ForbiddenException('Access denied');
     return account;
   }
 
-  async update(id: string, dto: Partial<CreateAccountDto>): Promise<AccountEntity> {
+  async update(id: string, householdId: string, dto: Partial<CreateAccountDto>): Promise<AccountEntity> {
+    await this.findOne(id, householdId);
     await this.repo.update(id, dto);
-    return this.findOne(id);
+    return this.findOne(id, householdId);
   }
 
-  async remove(id: string): Promise<void> {
+  async remove(id: string, householdId: string): Promise<void> {
+    await this.findOne(id, householdId);
     await this.repo.delete(id);
   }
 }

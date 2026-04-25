@@ -24,17 +24,17 @@ export class AccountsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.accountsService.findOne(id);
+  findOne(@Param('id') id: string, @CurrentUser() user: UserEntity) {
+    return this.accountsService.findOne(id, user.householdId!);
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() dto: Partial<CreateAccountDto>) {
-    return this.accountsService.update(id, dto);
+  update(@Param('id') id: string, @CurrentUser() user: UserEntity, @Body() dto: Partial<CreateAccountDto>) {
+    return this.accountsService.update(id, user.householdId!, dto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.accountsService.remove(id);
+  remove(@Param('id') id: string, @CurrentUser() user: UserEntity) {
+    return this.accountsService.remove(id, user.householdId!);
   }
 }
