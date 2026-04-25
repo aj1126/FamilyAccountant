@@ -4,11 +4,11 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { TransactionEntity } from '../../entities/transaction.entity';
 
 const mockTx = {
-  id: 'srv-uuid',
-  localId: 'local-1',
-  accountId: 'acc-1',
-  householdId: 'hh-1',
-  userId: 'user-1',
+  id: 'a1b2c3d4-0000-0000-0000-000000000001',
+  localId: 'b1b2c3d4-0000-0000-0000-000000000002',
+  accountId: 'c1b2c3d4-0000-0000-0000-000000000003',
+  householdId: 'd1b2c3d4-0000-0000-0000-000000000004',
+  userId: 'e1b2c3d4-0000-0000-0000-000000000005',
   amount: 100,
   currency: 'USD',
   description: 'Test',
@@ -30,6 +30,7 @@ describe('SyncService', () => {
   };
 
   beforeEach(async () => {
+    jest.clearAllMocks();
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         SyncService,
@@ -49,7 +50,7 @@ describe('SyncService', () => {
     mockRepo.save.mockResolvedValue(mockTx);
     mockRepo.find.mockResolvedValue([mockTx]);
 
-    const result = await service.sync('hh-1', 'user-1', {
+    const result = await service.sync('d1b2c3d4-0000-0000-0000-000000000004', 'e1b2c3d4-0000-0000-0000-000000000005', {
       transactions: [
         {
           ...mockTx,
@@ -73,7 +74,7 @@ describe('SyncService', () => {
     mockRepo.find.mockResolvedValue([]);
     mockRepo.save.mockResolvedValue(mockTx);
 
-    await service.sync('hh-1', 'user-1', {
+    await service.sync('d1b2c3d4-0000-0000-0000-000000000004', 'e1b2c3d4-0000-0000-0000-000000000005', {
       transactions: [
         {
           ...mockTx,

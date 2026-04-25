@@ -19,7 +19,7 @@ export class TransactionEntity {
   localId!: string;
 
   @Column({ type: 'uuid', nullable: true })
-  accountId: string | null;
+  accountId!: string | null;
 
   @Column({ type: 'uuid' })
   householdId!: string;
