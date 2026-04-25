@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { v4 as uuidv4 } from 'uuid';
 import { Transaction } from '@family-accountant/shared';
 import { db } from '../db/database';
 import { apiClient } from '../services/api.client';
@@ -23,7 +24,7 @@ export const useTransactionStore = create<TransactionState>((set, get) => ({
 
   addTransaction: async (txData) => {
     const now = new Date().toISOString();
-    const id = `local-${Date.now()}`;
+    const id = uuidv4();
     const tx: Transaction = {
       ...txData,
       id,
