@@ -4,7 +4,11 @@
     "outDir": "dist",
     "rootDir": "src",
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
+    "emitDecoratorMetadata": true,
+    "baseUrl": ".",
+    "paths": {
+      "@family-accountant/shared": ["../shared/dist/index"]
+    }
   },
   "include": ["src"]
 }
