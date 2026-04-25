@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import { useTransactionStore } from '../stores/transaction.store';
 import { useAuthStore } from '../stores/auth.store';
 import { SyncStatusBadge } from '../components/SyncStatusBadge';
@@ -25,7 +26,7 @@ export function Transactions() {
     const parsed = parseFloat(amount);
     if (!description || isNaN(parsed) || !householdId) return;
     await addTransaction({
-      localId: `local-${Date.now()}`,
+      localId: uuidv4(),
       accountId: undefined,
       householdId,
       amount: parsed,
