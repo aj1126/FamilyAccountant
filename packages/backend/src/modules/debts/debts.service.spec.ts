@@ -89,6 +89,11 @@ describe('DebtsService', () => {
       await expect(service.findOne(DEBT_ID, HOUSEHOLD_B)).rejects.toBeInstanceOf(ForbiddenException);
     });
 
+    it('should throw ForbiddenException when householdId is null', async () => {
+      mockRepo.findOneBy.mockResolvedValue(mockDebt);
+      await expect(service.findOne(DEBT_ID, null as unknown as string)).rejects.toBeInstanceOf(ForbiddenException);
+    });
+
     it('should return debt when householdId matches', async () => {
       mockRepo.findOneBy.mockResolvedValue(mockDebt);
       const result = await service.findOne(DEBT_ID, HOUSEHOLD_A);
