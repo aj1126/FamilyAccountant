@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm turbo run lint
+
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm turbo run build --filter=@family-accountant/shared --filter=@family-accountant/backend
+
+  test-backend:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+      # Starts the PostgreSQL instance that is pre-installed on GitHub-hosted
+      # ubuntu runners — no Docker or virtualization needed.
+      - name: Start PostgreSQL
+        run: |
+          sudo systemctl start postgresql.service
+          sudo -u postgres psql -c "CREATE USER fa_user WITH PASSWORD 'fa_pass';"
+          sudo -u postgres psql -c "CREATE DATABASE family_accountant_test OWNER fa_user;"
+      - run: pnpm install --frozen-lockfile
+      - name: Run backend tests
+        env:
+          DATABASE_URL: postgresql://fa_user:fa_pass@localhost:5432/family_accountant_test
+          JWT_SECRET: test_jwt_secret
+          JWT_EXPIRES_IN: 15m
+          JWT_REFRESH_SECRET: test_refresh_secret
+          JWT_REFRESH_EXPIRES_IN: 7d
+        run: pnpm turbo run test --filter=@family-accountant/backend
+
