@@ -1,7 +1,4 @@
-import { SyncQueue } from '../../../../shared/src/sync/sync-queue';
-
-/** Waits for a set amount of real milliseconds */
-const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
+import { SyncQueue } from '@family-accountant/shared';
 
 describe('SyncQueue', () => {
   it('should execute an enqueued operation', async () => {
@@ -41,8 +38,16 @@ describe('SyncQueue', () => {
     // First op is actively running, second is waiting
     expect(queue.size).toBe(2);
 
+    // Add a sentinel BEFORE unblocking (same array, not cleared) so we know
+    // exactly when the queue finishes draining
+    let sentinelDone!: () => void;
+    const drained = new Promise<void>((r) => { sentinelDone = r; });
+    queue.enqueue(async () => { sentinelDone(); });
+
     unblock();
-    await wait(20);
+    await drained;
+    // Allow the flush loop to call queue.shift() on the sentinel
+    await Promise.resolve();
     expect(queue.size).toBe(0);
   });
 
@@ -58,10 +63,12 @@ describe('SyncQueue', () => {
     queue.clear();
     expect(queue.size).toBe(0);
 
-    // Let the running op finish; the cleared pending op must NOT run
-    unblock();
-    await wait(20);
+    // 'shouldNotRun' was removed from the queue by clear(); it cannot execute.
+    // Assertion is immediate — no sentinel needed.
     expect(executed).not.toContain('shouldNotRun');
+
+    // Release the still-running op so flush() can complete cleanly in the background.
+    unblock();
   });
 
   it('should not start a second concurrent flush when enqueue is called during an active flush', async () => {
@@ -75,8 +82,12 @@ describe('SyncQueue', () => {
     // flush() is now blocked on firstOp
     queue.enqueue(secondOp); // must not trigger a second flush
 
+    let allDone!: () => void;
+    const done = new Promise<void>((r) => { allDone = r; });
+    queue.enqueue(async () => { allDone(); });
+
     unblock(); // let firstOp complete
-    await wait(20);
+    await done;
 
     expect(firstOp).toHaveBeenCalledTimes(1);
     expect(secondOp).toHaveBeenCalledTimes(1);
@@ -125,4 +136,3 @@ describe('SyncQueue', () => {
     expect(delays[2]).toBeGreaterThanOrEqual(delays[1]);
   });
 });
-

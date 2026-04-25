@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { ForbiddenException } from '@nestjs/common';
+import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { HouseholdsService } from './households.service';
 import { HouseholdEntity } from '../../entities/household.entity';
 import { UsersService } from '../users/users.service';
@@ -84,9 +84,9 @@ describe('HouseholdsService', () => {
       await expect(service.getHousehold(HOUSEHOLD_ID, OTHER_USER_ID)).rejects.toBeInstanceOf(ForbiddenException);
     });
 
-    it('should throw ForbiddenException when household does not exist', async () => {
+    it('should throw NotFoundException when household does not exist', async () => {
       mockRepo.findOneBy.mockResolvedValue(null);
-      await expect(service.getHousehold(HOUSEHOLD_ID, OWNER_ID)).rejects.toBeInstanceOf(ForbiddenException);
+      await expect(service.getHousehold(HOUSEHOLD_ID, OWNER_ID)).rejects.toBeInstanceOf(NotFoundException);
     });
   });
 });

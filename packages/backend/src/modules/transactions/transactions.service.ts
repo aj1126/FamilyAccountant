@@ -24,10 +24,11 @@ export class TransactionsService {
     return this.repo.findBy({ householdId });
   }
 
-  async findOne(id: string, householdId?: string): Promise<TransactionEntity> {
+  async findOne(id: string, householdId: string): Promise<TransactionEntity> {
     const tx = await this.repo.findOneBy({ id });
     if (!tx) throw new NotFoundException('Transaction not found');
-    if (householdId && tx.householdId !== householdId) throw new ForbiddenException('Access denied');
+    if (householdId == null) throw new ForbiddenException('Access denied');
+    if (tx.householdId !== householdId) throw new ForbiddenException('Access denied');
     return tx;
   }
 

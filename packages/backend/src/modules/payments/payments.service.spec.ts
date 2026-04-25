@@ -74,13 +74,13 @@ describe('PaymentsService', () => {
   describe('findOne', () => {
     it('should return a payment by id', async () => {
       mockRepo.findOneBy.mockResolvedValue(mockPayment);
-      const result = await service.findOne(PAYMENT_ID);
+      const result = await service.findOne(PAYMENT_ID, HOUSEHOLD_A);
       expect(result).toEqual(mockPayment);
     });
 
     it('should throw NotFoundException if payment does not exist', async () => {
       mockRepo.findOneBy.mockResolvedValue(null);
-      await expect(service.findOne(PAYMENT_ID)).rejects.toBeInstanceOf(NotFoundException);
+      await expect(service.findOne(PAYMENT_ID, HOUSEHOLD_A)).rejects.toBeInstanceOf(NotFoundException);
     });
 
     it('should throw ForbiddenException if payment belongs to a different household', async () => {

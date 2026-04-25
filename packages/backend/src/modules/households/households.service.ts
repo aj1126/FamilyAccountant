@@ -1,4 +1,4 @@
-import { Injectable, ForbiddenException } from '@nestjs/common';
+import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { HouseholdEntity } from '../../entities/household.entity';
@@ -26,9 +26,8 @@ export class HouseholdsService {
 
   async getHousehold(householdId: string, requesterId: string) {
     const household = await this.findById(householdId);
-    if (!household || household.ownerId !== requesterId) {
-      throw new ForbiddenException();
-    }
+    if (!household) throw new NotFoundException('Household not found');
+    if (household.ownerId !== requesterId) throw new ForbiddenException();
     return household;
   }
 }

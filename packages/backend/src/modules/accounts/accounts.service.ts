@@ -20,10 +20,11 @@ export class AccountsService {
     return this.repo.findBy({ householdId });
   }
 
-  async findOne(id: string, householdId?: string): Promise<AccountEntity> {
+  async findOne(id: string, householdId: string): Promise<AccountEntity> {
     const account = await this.repo.findOneBy({ id });
     if (!account) throw new NotFoundException('Account not found');
-    if (householdId && account.householdId !== householdId) throw new ForbiddenException('Access denied');
+    if (householdId == null) throw new ForbiddenException('Access denied');
+    if (account.householdId !== householdId) throw new ForbiddenException('Access denied');
     return account;
   }
 

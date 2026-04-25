@@ -20,10 +20,11 @@ export class DebtsService {
     return this.repo.findBy({ householdId });
   }
 
-  async findOne(id: string, householdId?: string): Promise<DebtEntity> {
+  async findOne(id: string, householdId: string): Promise<DebtEntity> {
     const debt = await this.repo.findOneBy({ id });
     if (!debt) throw new NotFoundException('Debt not found');
-    if (householdId && debt.householdId !== householdId) throw new ForbiddenException('Access denied');
+    if (householdId == null) throw new ForbiddenException('Access denied');
+    if (debt.householdId !== householdId) throw new ForbiddenException('Access denied');
     return debt;
   }
 

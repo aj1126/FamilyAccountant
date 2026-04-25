@@ -79,13 +79,13 @@ describe('TransactionsService', () => {
   describe('findOne', () => {
     it('should return a transaction by id', async () => {
       mockRepo.findOneBy.mockResolvedValue(mockTx);
-      const result = await service.findOne(TX_ID);
+      const result = await service.findOne(TX_ID, HOUSEHOLD_A);
       expect(result).toEqual(mockTx);
     });
 
     it('should throw NotFoundException if transaction does not exist', async () => {
       mockRepo.findOneBy.mockResolvedValue(null);
-      await expect(service.findOne(TX_ID)).rejects.toBeInstanceOf(NotFoundException);
+      await expect(service.findOne(TX_ID, HOUSEHOLD_A)).rejects.toBeInstanceOf(NotFoundException);
     });
 
     it('should throw ForbiddenException if transaction belongs to a different household', async () => {

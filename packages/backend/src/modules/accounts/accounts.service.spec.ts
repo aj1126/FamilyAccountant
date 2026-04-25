@@ -67,13 +67,13 @@ describe('AccountsService', () => {
   describe('findOne', () => {
     it('should return an account by id', async () => {
       mockRepo.findOneBy.mockResolvedValue(mockAccount);
-      const result = await service.findOne(ACCOUNT_ID);
+      const result = await service.findOne(ACCOUNT_ID, HOUSEHOLD_A);
       expect(result).toEqual(mockAccount);
     });
 
     it('should throw NotFoundException if account does not exist', async () => {
       mockRepo.findOneBy.mockResolvedValue(null);
-      await expect(service.findOne(ACCOUNT_ID)).rejects.toBeInstanceOf(NotFoundException);
+      await expect(service.findOne(ACCOUNT_ID, HOUSEHOLD_A)).rejects.toBeInstanceOf(NotFoundException);
     });
 
     it('should throw ForbiddenException if account belongs to a different household', async () => {
