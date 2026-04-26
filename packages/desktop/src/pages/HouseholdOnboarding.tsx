@@ -4,11 +4,7 @@ import { useAuthStore } from '../stores/auth.store';
 
 type Mode = 'choose' | 'create' | 'join';
 
-interface Props {
-  onComplete: (householdId: string) => void;
-}
-
-export function HouseholdOnboarding({ onComplete }: Props) {
+export function HouseholdOnboarding() {
   const [mode, setMode] = useState<Mode>('choose');
   const [householdName, setHouseholdName] = useState('');
   const [householdId, setHouseholdId] = useState('');
@@ -24,7 +20,6 @@ export function HouseholdOnboarding({ onComplete }: Props) {
     try {
       const { data } = await apiClient.post('/households', { name: householdName });
       setHouseholdInStore(data.id as string);
-      onComplete(data.id as string);
     } catch {
       setError('Could not create household. Please try again.');
     } finally {
@@ -39,7 +34,6 @@ export function HouseholdOnboarding({ onComplete }: Props) {
     try {
       const { data } = await apiClient.post('/households/join', { householdId });
       setHouseholdInStore(data.id as string);
-      onComplete(data.id as string);
     } catch {
       setError('Household not found. Check the ID and try again.');
     } finally {

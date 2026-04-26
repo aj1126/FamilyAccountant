@@ -3,11 +3,7 @@ import { useAuthStore } from '../stores/auth.store';
 
 type Tab = 'login' | 'register';
 
-interface Props {
-  onAuthenticated: () => void;
-}
-
-export function Login({ onAuthenticated }: Props) {
+export function Login() {
   const [tab, setTab] = useState<Tab>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -28,7 +24,6 @@ export function Login({ onAuthenticated }: Props) {
       } else {
         await register(email, password, displayName);
       }
-      onAuthenticated();
     } catch {
       setError(tab === 'login' ? 'Invalid email or password.' : 'Registration failed. Please try again.');
     } finally {

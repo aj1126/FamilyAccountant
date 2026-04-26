@@ -25,11 +25,11 @@ export default function App() {
   if (!bootstrapped) return null;
 
   if (!accessToken) {
-    return <Login onAuthenticated={() => {}} />;
+    return <Login />;
   }
 
   if (!householdId) {
-    return <HouseholdOnboarding onComplete={() => {}} />;
+    return <HouseholdOnboarding />;
   }
 
   const navStyle = (p: Page): React.CSSProperties => ({
