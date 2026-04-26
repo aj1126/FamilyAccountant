@@ -1,0 +1,43 @@
+name: Auto-Update README
+
+# The event trigger: fires on pushes to main (which includes accepted pull requests/merges)
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  update-docs:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Explicitly grants the token permission to push commits
+      
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Modify README Content
+        shell: pwsh
+        run: |
+          # Define your logic here. This example appends a dynamic timestamp.
+          $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+          $updateText = "`n*Last automated update following merge: $timestamp*"
+          
+          # Append to the file
+          Add-Content -Path "README.md" -Value $updateText
+
+      - name: Commit and Push Changes
+        shell: pwsh
+        run: |
+          # Set up bot identity for the commit
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Stage and commit the modified file
+          git add README.md
+          
+          # The [skip ci] tag is a standard safeguard to prevent recursive workflow triggers
+          git commit -m "docs: auto-update README after merge [skip ci]"
+          
+          # Push the changes back to the main branch
+          git push
