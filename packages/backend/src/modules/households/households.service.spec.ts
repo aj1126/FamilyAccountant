@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { ForbiddenException, NotFoundException } from '@nestjs/common';
+import { ConflictException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { HouseholdsService } from './households.service';
 import { HouseholdEntity } from '../../entities/household.entity';
 import { UsersService } from '../users/users.service';
@@ -34,7 +34,7 @@ describe('HouseholdsService', () => {
         { provide: getRepositoryToken(HouseholdEntity), useValue: mockRepo },
         {
           provide: UsersService,
-          useValue: { updateHousehold: jest.fn() },
+          useValue: { findById: jest.fn(), updateHousehold: jest.fn() },
         },
       ],
     }).compile();
@@ -87,6 +87,36 @@ describe('HouseholdsService', () => {
     it('should throw NotFoundException when household does not exist', async () => {
       mockRepo.findOneBy.mockResolvedValue(null);
       await expect(service.getHousehold(HOUSEHOLD_ID, OWNER_ID)).rejects.toBeInstanceOf(NotFoundException);
+    });
+  });
+
+  describe('join', () => {
+    it('should join a household and update the user household assignment', async () => {
+      usersService.findById.mockResolvedValue({ id: OTHER_USER_ID, householdId: null } as any);
+      mockRepo.findOneBy.mockResolvedValue(mockHousehold);
+      usersService.updateHousehold.mockResolvedValue(undefined);
+
+      const result = await service.join(OTHER_USER_ID, { householdId: HOUSEHOLD_ID });
+
+      expect(usersService.findById).toHaveBeenCalledWith(OTHER_USER_ID);
+      expect(mockRepo.findOneBy).toHaveBeenCalledWith({ id: HOUSEHOLD_ID });
+      expect(usersService.updateHousehold).toHaveBeenCalledWith(OTHER_USER_ID, HOUSEHOLD_ID);
+      expect(result).toEqual(mockHousehold);
+    });
+
+    it('should throw ConflictException when user is already in a household', async () => {
+      usersService.findById.mockResolvedValue({ id: OWNER_ID, householdId: HOUSEHOLD_ID } as any);
+
+      await expect(service.join(OWNER_ID, { householdId: HOUSEHOLD_ID })).rejects.toBeInstanceOf(ConflictException);
+      expect(usersService.updateHousehold).not.toHaveBeenCalled();
+    });
+
+    it('should throw NotFoundException when household does not exist', async () => {
+      usersService.findById.mockResolvedValue({ id: OTHER_USER_ID, householdId: null } as any);
+      mockRepo.findOneBy.mockResolvedValue(null);
+
+      await expect(service.join(OTHER_USER_ID, { householdId: HOUSEHOLD_ID })).rejects.toBeInstanceOf(NotFoundException);
+      expect(usersService.updateHousehold).not.toHaveBeenCalled();
     });
   });
 });

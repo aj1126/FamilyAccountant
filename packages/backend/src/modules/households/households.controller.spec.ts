@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { NotFoundException, ConflictException } from '@nestjs/common';
 import { HouseholdsController } from './households.controller';
 import { HouseholdsService } from './households.service';
 import { UserEntity } from '../../entities/user.entity';
@@ -28,6 +29,7 @@ describe('HouseholdsController', () => {
           provide: HouseholdsService,
           useValue: {
             create: jest.fn(),
+            join: jest.fn(),
             getHousehold: jest.fn(),
           },
         },
@@ -45,6 +47,30 @@ describe('HouseholdsController', () => {
       const result = await controller.create(mockUser as UserEntity, dto);
       expect(service.create).toHaveBeenCalledWith(OWNER_ID, dto);
       expect(result).toEqual(mockHousehold);
+    });
+  });
+
+  describe('join', () => {
+    it('should call service.join with userId and dto', async () => {
+      service.join.mockResolvedValue(mockHousehold);
+      const dto = { householdId: HOUSEHOLD_ID };
+      const result = await controller.join(mockUser as UserEntity, dto);
+      expect(service.join).toHaveBeenCalledWith(OWNER_ID, dto);
+      expect(result).toEqual(mockHousehold);
+    });
+
+    it('should propagate NotFoundException from service', async () => {
+      service.join.mockRejectedValue(new NotFoundException('Household not found'));
+      await expect(
+        controller.join(mockUser as UserEntity, { householdId: 'non-existent-id' }),
+      ).rejects.toBeInstanceOf(NotFoundException);
+    });
+
+    it('should propagate ConflictException from service when user already has a household', async () => {
+      service.join.mockRejectedValue(new ConflictException('User is already a member of a household'));
+      await expect(
+        controller.join(mockUser as UserEntity, { householdId: HOUSEHOLD_ID }),
+      ).rejects.toBeInstanceOf(ConflictException);
     });
   });
 

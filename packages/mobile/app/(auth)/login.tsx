@@ -11,7 +11,12 @@ export default function LoginScreen() {
   const handleLogin = async () => {
     try {
       await login(email, password);
-      router.replace('/(tabs)');
+      const { householdId } = useAuthStore.getState();
+      if (householdId) {
+        router.replace('/(tabs)');
+      } else {
+        router.replace('/(onboarding)/household');
+      }
     } catch {
       Alert.alert('Error', 'Invalid credentials');
     }
