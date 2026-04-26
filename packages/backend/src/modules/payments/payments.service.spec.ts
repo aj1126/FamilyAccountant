@@ -88,6 +88,10 @@ describe('PaymentsService', () => {
       await expect(service.findOne(PAYMENT_ID, HOUSEHOLD_B)).rejects.toBeInstanceOf(ForbiddenException);
     });
 
+    it('should throw ForbiddenException when householdId is null', async () => {
+      await expect(service.findOne(PAYMENT_ID, null as unknown as string)).rejects.toBeInstanceOf(ForbiddenException);
+    });
+
     it('should return payment when householdId matches', async () => {
       mockRepo.findOneBy.mockResolvedValue(mockPayment);
       const result = await service.findOne(PAYMENT_ID, HOUSEHOLD_A);

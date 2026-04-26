@@ -81,6 +81,11 @@ describe('AccountsService', () => {
       await expect(service.findOne(ACCOUNT_ID, HOUSEHOLD_B)).rejects.toBeInstanceOf(ForbiddenException);
     });
 
+    it('should throw ForbiddenException when householdId is null', async () => {
+      mockRepo.findOneBy.mockResolvedValue(mockAccount);
+      await expect(service.findOne(ACCOUNT_ID, null as unknown as string)).rejects.toBeInstanceOf(ForbiddenException);
+    });
+
     it('should return the account when householdId matches', async () => {
       mockRepo.findOneBy.mockResolvedValue(mockAccount);
       const result = await service.findOne(ACCOUNT_ID, HOUSEHOLD_A);
