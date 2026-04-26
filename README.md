@@ -112,9 +112,37 @@ FamilyAccountant/
 
 Swagger UI is available at `http://localhost:3000/api/docs` when the backend is running.
 
+## Current State Snapshot
+
+- **Backend:** Most complete layer. Auth, households, accounts, transactions, debts, payments, and sync modules exist in NestJS with TypeORM/PostgreSQL.
+- **Mobile:** Expo app has login/register, dashboard, transactions, and debts screens plus SQLite-backed local storage and Zustand stores.
+- **Desktop:** React + Electron app has dashboard, transactions, and debts screens, but auth/onboarding is still behind the mobile flow.
+- **Shared:** Shared DTOs, types, and sync contracts are wired into the backend and both clients.
+- **Testing:** Automated tests currently exist only for `@family-accountant/backend`.
+
+## Current Delivery Priorities
+
+1. **Finish session bootstrap on both clients** so persisted auth state and local database setup run on startup.
+2. **Add household onboarding immediately after auth** so users can create or join a household before any finance workflow.
+3. **Reach mobile/desktop parity** for auth and onboarding before expanding either client further.
+4. **Complete account management** to give transactions stable household/account context.
+5. **Polish the first end-to-end workflow** around transaction create/list/offline sync, then finish debts and payments.
+6. **Replace TypeORM synchronize with migrations** and tighten household authorization rules once the core workflow is stable.
+
+## Accessibility Baseline
+
+All upcoming product work should assume:
+
+- large text and clear hierarchy by default
+- large hit targets and keyboard-friendly desktop navigation
+- low cognitive load with simpler screens and fewer simultaneous choices
+- explicit accessibility labels/hints on mobile and stronger semantic structure on desktop
+- clear success, empty, and error states for low-tech-confidence users
+
 ## Development Status
 
-- **Current Phase:** Monorepo scaffold complete — backend entities, auth, CRUD modules, and sync endpoint are defined.
-- **Next Steps:** Run database migrations, implement mobile UI screens, implement desktop UI.
+- **Current Phase:** Phase 1 repo alignment is complete enough to plan against the live codebase; backend CRUD/auth is ahead of the mobile and desktop product flows.
+- **Immediate Next Steps:** finish auth/session bootstrap on both apps, add household onboarding, and bring desktop to parity with the mobile auth/onboarding path.
+- **Later Milestones:** account management, polished transaction sync, debt/payment completion, accessibility hardening, migrations, and broader automated test coverage.
 
 See [CHANGELOG.md](./CHANGELOG.md) for a detailed history of all changes.

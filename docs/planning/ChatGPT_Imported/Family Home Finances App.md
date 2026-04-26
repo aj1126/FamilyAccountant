@@ -799,6 +799,52 @@ If you want to steer the next step slightly:
 
 Say “auto split”, “manual”, or “both” — and I’ll build it that way.
 
+---
+
+## **2026 Repository Status Addendum**
+
+This imported planning document still captures the original product direction, but the live repository has moved from concept into an actual pnpm/Turborepo implementation. Use the notes below as the current interpretation of the plan when deciding sequencing.
+
+### **Verified current state**
+
+* `packages/backend` is the most complete package and already contains the main auth, household, account, transaction, debt, payment, and sync foundations.
+* `packages/mobile` already has login/register, dashboard, transactions, debts, Zustand stores, and SQLite helpers.
+* `packages/desktop` already has dashboard, transactions, debts, local persistence plumbing, and shared service/store patterns, but auth/onboarding parity is still missing.
+* `packages/shared` contains the shared DTO, type, and sync contract layer consumed by the other packages.
+
+### **Current delivery blockers**
+
+* Mobile startup does not yet wire `loadTokens()` or `initDatabase()`.
+* Desktop startup does not yet wire `loadTokens()`.
+* Post-auth household onboarding is still missing even though finance flows depend on `householdId`.
+* Offline-first implementation is still transaction-heavy and has not yet expanded cleanly to the rest of the finance model.
+* Accessibility work needs to move from implicit intent into explicit implementation requirements.
+* Database migrations are still missing; backend setup still relies on TypeORM synchronization outside production.
+
+### **Updated sequencing**
+
+1. Repo/doc alignment and tracked backlog updates
+2. Auth/session bootstrap plus household onboarding on both clients
+3. Account management and a polished transaction workflow
+4. Debt/payment completion
+5. Accessibility hardening across mobile and desktop
+6. Backend migrations and authorization hardening
+7. Dedicated automated test expansion
+
+### **Accessibility baseline for future work**
+
+Treat all core screens as needing:
+
+* larger text and clearer visual hierarchy
+* larger tap/click targets
+* keyboard-friendly desktop navigation
+* lower cognitive load with fewer simultaneous decisions
+* explicit accessibility labels/hints on mobile and stronger semantic structure on desktop
+
+### **Planning rule**
+
+Update `README.md`, this imported plan, and `docs/planning/chatgpt/ChatGPT_Plan.md` together when sequencing or requirements change. Prefer updating existing docs over adding new planning files.
+
 # Starter Architecture & Code typescript
 
 // \======================================  
