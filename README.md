@@ -146,3 +146,5 @@ All upcoming product work should assume:
 - **Later Milestones:** account management, polished transaction sync, debt/payment completion, accessibility hardening, migrations, and broader automated test coverage.
 
 See [CHANGELOG.md](./CHANGELOG.md) for a detailed history of all changes.
+
+*Last automated update following merge: 2026-04-26 06:29:26*
