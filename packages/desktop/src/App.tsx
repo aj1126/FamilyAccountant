@@ -1,28 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Dashboard } from './pages/Dashboard';
 import { Transactions } from './pages/Transactions';
 import { Debts } from './pages/Debts';
+import { Accounts } from './pages/Accounts';
 import { Login } from './pages/Login';
 import { HouseholdOnboarding } from './pages/HouseholdOnboarding';
 import { useAuthStore } from './stores/auth.store';
 
-type Page = 'dashboard' | 'transactions' | 'debts';
+// Load tokens synchronously from localStorage before any component renders
+// so the app never shows a blank frame waiting for a useEffect to fire.
+useAuthStore.getState().loadTokens();
+
+type Page = 'dashboard' | 'transactions' | 'debts' | 'accounts';
 
 export default function App() {
   const [page, setPage] = useState<Page>('dashboard');
-  const [bootstrapped, setBootstrapped] = useState(false);
 
-  const loadTokens = useAuthStore((s) => s.loadTokens);
   const accessToken = useAuthStore((s) => s.accessToken);
   const householdId = useAuthStore((s) => s.householdId);
   const logout = useAuthStore((s) => s.logout);
-
-  useEffect(() => {
-    loadTokens();
-    setBootstrapped(true);
-  }, [loadTokens]);
-
-  if (!bootstrapped) return null;
 
   if (!accessToken) {
     return <Login />;
@@ -55,17 +51,21 @@ export default function App() {
         }}
       >
         <span style={{ fontWeight: 700, fontSize: 18, marginRight: 24 }}>FamilyAccountant</span>
-        <button style={navStyle('dashboard')} onClick={() => setPage('dashboard')}>
+        <button style={navStyle('dashboard')} onClick={() => setPage('dashboard')} aria-label="Dashboard">
           Dashboard
         </button>
-        <button style={navStyle('transactions')} onClick={() => setPage('transactions')}>
+        <button style={navStyle('transactions')} onClick={() => setPage('transactions')} aria-label="Transactions">
           Transactions
         </button>
-        <button style={navStyle('debts')} onClick={() => setPage('debts')}>
+        <button style={navStyle('accounts')} onClick={() => setPage('accounts')} aria-label="Accounts">
+          Accounts
+        </button>
+        <button style={navStyle('debts')} onClick={() => setPage('debts')} aria-label="Debts">
           Debts
         </button>
         <button
           onClick={logout}
+          aria-label="Sign out"
           style={{
             marginLeft: 'auto',
             padding: '6px 14px',
@@ -83,6 +83,7 @@ export default function App() {
       <main style={{ flex: 1, padding: 24 }}>
         {page === 'dashboard' && <Dashboard />}
         {page === 'transactions' && <Transactions />}
+        {page === 'accounts' && <Accounts />}
         {page === 'debts' && <Debts />}
       </main>
     </div>
