@@ -53,8 +53,9 @@ export function Debts() {
       setFormError('User not identified. Please log in again.');
       return;
     }
-    // Use the current user's ID for both creditor and debtor.
-    // The direction field determines who owes whom from the user's perspective.
+    // TODO (Phase 4.3): replace with proper counterparty user-ID lookup once
+    // multi-user search is built. Until then, both creditorId and debtorId are
+    // set to the current user's ID; the direction field captures who owes whom.
     createMutation.mutate({
       description: description.trim(),
       amount: parsed,

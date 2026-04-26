@@ -48,7 +48,9 @@ export function AddDebtModal({ visible, onClose }: Props) {
         amount: parsedAmount,
         currency: currency.trim() || 'USD',
         direction,
-        // Use current user's ID for both until multi-user lookup is built.
+        // TODO (Phase 4.3): replace with proper counterparty user-ID lookup once
+        // multi-user search is built. Until then, both creditorId and debtorId are
+        // set to the current user's ID; the direction field captures who owes whom.
         creditorId: userId,
         debtorId: userId,
       });

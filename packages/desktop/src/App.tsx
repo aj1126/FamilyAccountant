@@ -9,7 +9,10 @@ import { useAuthStore } from './stores/auth.store';
 
 // Load tokens synchronously from localStorage before any component renders
 // so the app never shows a blank frame waiting for a useEffect to fire.
-useAuthStore.getState().loadTokens();
+// This is safe in Electron (localStorage is always available in the renderer process).
+if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+  useAuthStore.getState().loadTokens();
+}
 
 type Page = 'dashboard' | 'transactions' | 'debts' | 'accounts';
 

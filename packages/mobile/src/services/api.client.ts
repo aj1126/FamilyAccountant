@@ -15,6 +15,8 @@ apiClient.interceptors.request.use(async (config) => {
 
 // Silently refresh the access token on 401 responses.
 // Reads tokens directly from SecureStore to avoid a circular import with the auth store.
+// Uses a plain axios instance (not apiClient) for the refresh call so that the request
+// interceptor does not append the expired access token to the Authorization header.
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
