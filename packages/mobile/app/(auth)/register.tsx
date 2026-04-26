@@ -12,7 +12,7 @@ export default function RegisterScreen() {
   const handleRegister = async () => {
     try {
       await register(email, password, displayName);
-      router.replace('/(tabs)');
+      router.replace('/(onboarding)/household');
     } catch {
       Alert.alert('Error', 'Registration failed');
     }

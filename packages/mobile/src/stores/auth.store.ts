@@ -11,6 +11,7 @@ interface AuthState {
   register: (email: string, password: string, displayName: string) => Promise<void>;
   logout: () => Promise<void>;
   loadTokens: () => Promise<void>;
+  setHouseholdId: (householdId: string) => Promise<void>;
 }
 
 async function hydrateUser(accessToken: string): Promise<{ userId: string; householdId: string | null }> {
@@ -60,5 +61,10 @@ export const useAuthStore = create<AuthState>((set) => ({
     await SecureStore.deleteItemAsync('userId');
     await SecureStore.deleteItemAsync('householdId');
     set({ accessToken: null, refreshToken: null, userId: null, householdId: null });
+  },
+
+  setHouseholdId: async (householdId: string) => {
+    await SecureStore.setItemAsync('householdId', householdId);
+    set({ householdId });
   },
 }));

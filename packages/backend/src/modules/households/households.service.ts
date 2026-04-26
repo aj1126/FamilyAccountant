@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { HouseholdEntity } from '../../entities/household.entity';
 import { UsersService } from '../users/users.service';
 import { CreateHouseholdDto } from './dtos/create-household.dto';
+import { JoinHouseholdDto } from './dtos/join-household.dto';
 
 @Injectable()
 export class HouseholdsService {
@@ -28,6 +29,13 @@ export class HouseholdsService {
     const household = await this.findById(householdId);
     if (!household) throw new NotFoundException('Household not found');
     if (household.ownerId !== requesterId) throw new ForbiddenException();
+    return household;
+  }
+
+  async join(userId: string, dto: JoinHouseholdDto): Promise<HouseholdEntity> {
+    const household = await this.findById(dto.householdId);
+    if (!household) throw new NotFoundException('Household not found');
+    await this.usersService.updateHousehold(userId, household.id);
     return household;
   }
 }
