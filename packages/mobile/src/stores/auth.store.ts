@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import * as SecureStore from 'expo-secure-store';
-import { apiClient } from '../services/api.client';
+import { apiClient, setUnauthorizedHandler } from '../services/api.client';
 
 interface AuthState {
   accessToken: string | null;
@@ -68,3 +68,9 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ householdId });
   },
 }));
+
+// Clear in-memory auth state when the 401 interceptor terminates a session.
+// Storage has already been cleared by the interceptor at this point.
+setUnauthorizedHandler(() => {
+  useAuthStore.setState({ accessToken: null, refreshToken: null, userId: null, householdId: null });
+});

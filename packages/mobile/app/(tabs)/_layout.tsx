@@ -23,6 +23,15 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
+        name="accounts"
+        options={{
+          title: 'Accounts',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="wallet-outline" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="debts"
         options={{
           title: 'Debts',

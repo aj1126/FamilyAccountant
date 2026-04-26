@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import { useQuery } from '@tanstack/react-query';
 import { useTransactionStore } from '../stores/transaction.store';
 import { useAuthStore } from '../stores/auth.store';
 import { SyncStatusBadge } from '../components/SyncStatusBadge';
 import Papa from 'papaparse';
-import { Transaction } from '@family-accountant/shared';
+import { Transaction, Account } from '@family-accountant/shared';
+import { apiClient } from '../services/api.client';
 
 export function Transactions() {
   const { transactions, loadFromDb, addTransaction } = useTransactionStore();
@@ -12,7 +14,13 @@ export function Transactions() {
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('');
+  const [accountId, setAccountId] = useState('');
   const [search, setSearch] = useState('');
+
+  const { data: accounts = [] } = useQuery<Account[]>({
+    queryKey: ['accounts'],
+    queryFn: () => apiClient.get('/accounts').then((r) => r.data),
+  });
 
   useEffect(() => {
     loadFromDb();
@@ -27,7 +35,7 @@ export function Transactions() {
     if (!description || isNaN(parsed) || !householdId) return;
     await addTransaction({
       localId: uuidv4(),
-      accountId: undefined,
+      accountId: accountId || undefined,
       householdId,
       amount: parsed,
       currency: 'USD',
@@ -39,6 +47,7 @@ export function Transactions() {
     setDescription('');
     setAmount('');
     setCategory('');
+    setAccountId('');
   };
 
   const handleExport = () => {
@@ -85,7 +94,21 @@ export function Transactions() {
             placeholder="Category"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
+            aria-label="Category"
           />
+          <select
+            style={{ ...inputStyle, flex: 'none', width: 180 }}
+            value={accountId}
+            onChange={(e) => setAccountId(e.target.value)}
+            aria-label="Account (optional)"
+          >
+            <option value="">No account</option>
+            {accounts.map((acc) => (
+              <option key={acc.id} value={acc.id}>
+                {acc.name} ({acc.type})
+              </option>
+            ))}
+          </select>
           <button
             onClick={handleAdd}
             style={{ padding: '8px 20px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer' }}

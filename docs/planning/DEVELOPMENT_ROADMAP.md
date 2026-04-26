@@ -283,13 +283,13 @@ Cover: enqueue + drain sequentially; concurrent enqueues serialise correctly; er
 
 ### Immediate (unblock core user journeys)
 
-- [ ] **2.1** Fix desktop bootstrap race in `App.tsx`
-- [ ] **2.3** Add 401 → refresh token interceptor to both clients
-- [ ] **3.3** Mobile: Accounts screen + tab entry
-- [ ] **3.4** Desktop: Accounts page + nav entry
-- [ ] **3.3 / 3.4** Add account picker to transaction forms on both clients
-- [ ] **4.2** Mobile: AddDebtModal + Settle button
-- [ ] **4.4** Desktop: New Debt form + Settle button
+- [x] **2.1** Fix desktop bootstrap race in `App.tsx`
+- [x] **2.3** Add 401 → refresh token interceptor to both clients
+- [x] **3.3** Mobile: Accounts screen + tab entry
+- [x] **3.4** Desktop: Accounts page + nav entry
+- [x] **3.3 / 3.4** Add account picker to transaction forms on both clients
+- [x] **4.2** Mobile: AddDebtModal + Settle button
+- [x] **4.4** Desktop: New Debt form + Settle button
 
 ### Soon (complete first end-to-end workflows)
 
