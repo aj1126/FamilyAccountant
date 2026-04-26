@@ -12,6 +12,14 @@ export function setAuthToken(token: string | null) {
   }
 }
 
+// Callback registered by the auth store to clear in-memory state when a
+// session is terminated by the interceptor. The indirection avoids a circular
+// import between api.client ↔ auth.store.
+let _onUnauthorized: (() => void) | null = null;
+export function setUnauthorizedHandler(cb: () => void): void {
+  _onUnauthorized = cb;
+}
+
 // Silently refresh the access token on 401 responses.
 // Reads tokens directly from localStorage to avoid a circular import with the auth store.
 // Uses a plain axios instance (not apiClient) for the refresh call so that the request
@@ -27,6 +35,7 @@ apiClient.interceptors.response.use(
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
         setAuthToken(null);
+        _onUnauthorized?.();
         return Promise.reject(error);
       }
       try {
@@ -42,6 +51,7 @@ apiClient.interceptors.response.use(
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
         setAuthToken(null);
+        _onUnauthorized?.();
         return Promise.reject(error);
       }
     }

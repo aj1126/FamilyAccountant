@@ -13,6 +13,14 @@ apiClient.interceptors.request.use(async (config) => {
   return config;
 });
 
+// Callback registered by the auth store to clear in-memory state when a
+// session is terminated by the interceptor. The indirection avoids a circular
+// import between api.client ↔ auth.store.
+let _onUnauthorized: (() => void) | null = null;
+export function setUnauthorizedHandler(cb: () => void): void {
+  _onUnauthorized = cb;
+}
+
 // Silently refresh the access token on 401 responses.
 // Reads tokens directly from SecureStore to avoid a circular import with the auth store.
 // Uses a plain axios instance (not apiClient) for the refresh call so that the request
@@ -27,6 +35,7 @@ apiClient.interceptors.response.use(
       if (!refreshToken) {
         await SecureStore.deleteItemAsync('accessToken');
         await SecureStore.deleteItemAsync('refreshToken');
+        _onUnauthorized?.();
         return Promise.reject(error);
       }
       try {
@@ -42,6 +51,7 @@ apiClient.interceptors.response.use(
       } catch {
         await SecureStore.deleteItemAsync('accessToken');
         await SecureStore.deleteItemAsync('refreshToken');
+        _onUnauthorized?.();
         return Promise.reject(error);
       }
     }

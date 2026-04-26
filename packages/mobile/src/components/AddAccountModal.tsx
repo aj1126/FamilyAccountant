@@ -31,11 +31,17 @@ export function AddAccountModal({ visible, onClose }: Props) {
       Alert.alert('Validation', 'Please enter an account name.');
       return;
     }
+    const trimmedBalance = balance.trim();
+    const parsedBalance = trimmedBalance ? parseFloat(trimmedBalance) : 0;
+    if (!Number.isFinite(parsedBalance)) {
+      Alert.alert('Validation', 'Please enter a valid opening balance.');
+      return;
+    }
     const dto: CreateAccountDto = {
       name: name.trim(),
       type,
       currency: currency.trim() || 'USD',
-      balance: balance ? parseFloat(balance) : 0,
+      balance: parsedBalance,
     };
     try {
       await apiClient.post('/accounts', dto);

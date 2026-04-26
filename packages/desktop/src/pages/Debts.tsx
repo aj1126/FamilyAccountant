@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '../services/api.client';
 import { useAuthStore } from '../stores/auth.store';
-import { Debt, DebtDirection } from '@family-accountant/shared';
+import { Debt, DebtDirection, CreateDebtDto } from '@family-accountant/shared';
 
 const DIRECTIONS: { value: DebtDirection; label: string }[] = [
   { value: 'owed_to_me', label: 'Owed to me' },
@@ -25,7 +25,7 @@ export function Debts() {
   const [formError, setFormError] = useState('');
 
   const createMutation = useMutation({
-    mutationFn: (body: Record<string, unknown>) =>
+    mutationFn: (body: CreateDebtDto) =>
       apiClient.post('/debts', body).then((r) => r.data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['debts'] });
@@ -40,7 +40,11 @@ export function Debts() {
 
   const settleMutation = useMutation({
     mutationFn: (id: string) => apiClient.patch(`/debts/${id}/settle`).then((r) => r.data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['debts'] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['debts'] });
+      setFormError('');
+    },
+    onError: () => setFormError('Failed to settle debt. Please try again.'),
   });
 
   const handleAdd = () => {

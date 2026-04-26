@@ -36,11 +36,18 @@ export function Accounts() {
       setFormError('Account name is required.');
       return;
     }
+    const trimmedBalance = balance.trim();
+    const parsedBalance = trimmedBalance ? parseFloat(trimmedBalance) : 0;
+    if (trimmedBalance && isNaN(parsedBalance)) {
+      setFormError('Opening balance must be a valid number.');
+      return;
+    }
+    setFormError('');
     createMutation.mutate({
       name: name.trim(),
       type,
       currency: currency.trim() || 'USD',
-      balance: balance ? parseFloat(balance) : 0,
+      balance: parsedBalance,
     });
   };
 
