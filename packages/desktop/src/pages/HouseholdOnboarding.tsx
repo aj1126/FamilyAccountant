@@ -35,6 +35,10 @@ export function HouseholdOnboarding() {
   const handleJoin = async (e: React.FormEvent) => {
     e.preventDefault();
     const trimmedId = householdId.trim();
+    if (!trimmedId) {
+      setError('Please enter a household ID.');
+      return;
+    }
     setError('');
     setLoading(true);
     try {
