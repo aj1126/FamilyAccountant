@@ -46,7 +46,7 @@ Keep this file aligned with the live repository, not the original scaffold conce
 
 ### Phase 2 — Auth/session completeness (both clients)
 
-- Fix desktop bootstrap race (`App.tsx` marks `bootstrapped` before auth state resolves).
+- Desktop: eliminate blank first frame in `App.tsx` caused by `bootstrapped=false` on initial render before the auth effect fires; future-proof by awaiting `loadTokens` before setting `bootstrapped` (matching the mobile pattern).
 - Add 401 → refresh-token Axios interceptor on both clients.
 - Wire `loadFromDb` call on mobile foreground resume.
 
@@ -78,8 +78,8 @@ Keep this file aligned with the live repository, not the original scaffold conce
 ### Phase 7 — Backend hardening
 
 - Replace TypeORM `synchronize` with real migrations.
-- Add `HouseholdGuard` to all household-scoped controllers; remove `!` non-null assertions.
-- Fix loose `== null` check in `DebtsService`; validate debt household in `PaymentsService`.
+- Add `HouseholdGuard` to all household-scoped controllers; remove `!` non-null assertions. (The existing `== null` guard pattern in services is logically correct; consider replacing it with strict equality only if the `eqeqeq` ESLint rule is enforced.)
+- Validate debt household in `PaymentsService`.
 
 ### Phase 8 — Dedicated test expansion
 

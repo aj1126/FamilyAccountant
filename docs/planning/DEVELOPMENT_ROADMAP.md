@@ -23,16 +23,17 @@
 
 **Goal:** ensure every launch correctly restores session state, then routes to the right screen.
 
-#### 2.1 Desktop: fix bootstrap race
+#### 2.1 Desktop: blank first frame before bootstrap effect fires
 
 **File:** `packages/desktop/src/App.tsx`
 
-The desktop `loadTokens()` is synchronous (uses `localStorage`) but it is called inside a `useEffect` callback and `setBootstrapped(true)` fires immediately after in the same synchronous turn — before the React subtree can react to the `set()` call. The result is that `accessToken` and `householdId` are read from stale state on the first render that checks `!accessToken`.
+`loadTokens()` is synchronous — it reads from `localStorage`, calls Zustand `set()` synchronously, and then `setBootstrapped(true)` fires in the same effect tick. Because Zustand state updates are synchronous, the re-render that sets `bootstrapped = true` already sees the correct `accessToken` and `householdId` values; there is no stale-state bug in the current flow.
+
+The real user-visible limitation is that `useEffect` runs **after the first paint**, so the app renders a blank screen (`return null`) for one frame before the effect fires and routing can happen. If `loadTokens` is ever made asynchronous (e.g. to validate the token server-side), the current pattern would also need to await it before setting `bootstrapped`.
 
 **Fix:**
-- Make `loadTokens` return a `Promise<void>` (or keep it sync but call `setBootstrapped` after the state selector re-reads the updated store).
-- Wait for the resolved state before marking `bootstrapped = true`.
-- Alternatively, use a `useRef`-based flag set inside the `useEffect` after `await loadTokens()`, matching the mobile pattern.
+- For the blank-frame issue: initialise `bootstrapped` from a synchronous selector read at component construction time, or move the token read into a module-level Zustand `getState()` call before the component mounts.
+- To future-proof against an async `loadTokens`: convert the `useEffect` to `await loadTokens()` and only call `setBootstrapped(true)` in the `finally` block, matching the mobile pattern in `_layout.tsx`.
 
 #### 2.2 Desktop: `loadTokens` does not await hydrateUser
 
@@ -214,19 +215,19 @@ Current gap: several controllers pass `user.householdId!` with a non-null assert
 - Apply `@UseGuards(JwtAuthGuard, HouseholdGuard)` on `AccountsController`, `TransactionsController`, `DebtsController`, `PaymentsController`, and `SyncController`.
 - Remove all `!` assertions on `user.householdId` in service calls.
 
-#### 7.3 Fix `householdId == null` loose equality in DebtsService
+#### 7.3 `householdId == null` style in DebtsService
 
 **File:** `packages/backend/src/modules/debts/debts.service.ts` line 26
 
-```ts
-// Current (incorrect — passes when householdId is undefined too)
-if (householdId == null) throw new ForbiddenException('Access denied');
+`householdId == null` is logically correct — loose equality with `null` is `true` for both `null` and `undefined`, so the guard already handles both cases. The same pattern is used consistently across `AccountsService`, `TransactionsService`, and `PaymentsService`.
 
-// Fix
+The only reason to change it would be to satisfy an `eqeqeq` ESLint rule that forbids loose equality. If that rule is enabled, replace with:
+
+```ts
 if (householdId === null || householdId === undefined)
 ```
 
-This is addressed automatically by the `HouseholdGuard` above but should also be corrected in the service for defence-in-depth.
+This item has low priority; the primary deliverable in this phase is adding `HouseholdGuard` (7.2), which makes the service-level guard redundant anyway.
 
 #### 7.4 Payments service: validate debt belongs to same household
 
