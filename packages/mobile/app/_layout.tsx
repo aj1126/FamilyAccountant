@@ -14,9 +14,15 @@ function BootstrappedStack() {
 
   useEffect(() => {
     async function bootstrap() {
-      await initDatabase();
-      await loadTokens();
-      setReady(true);
+      try {
+        await initDatabase();
+        await loadTokens();
+      } catch {
+        // bootstrap errors are non-recoverable; still mark ready so the
+        // redirect effect runs and sends the user to the login screen
+      } finally {
+        setReady(true);
+      }
     }
     bootstrap();
   }, [loadTokens]);
@@ -31,6 +37,8 @@ function BootstrappedStack() {
       router.replace('/(tabs)');
     }
   }, [ready, accessToken, householdId]);
+
+  if (!ready) return null;
 
   return (
     <Stack>

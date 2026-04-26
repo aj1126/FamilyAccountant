@@ -15,10 +15,15 @@ export function HouseholdOnboarding() {
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
+    const trimmedName = householdName.trim();
+    if (!trimmedName) {
+      setError('Please enter a household name.');
+      return;
+    }
     setError('');
     setLoading(true);
     try {
-      const { data } = await apiClient.post('/households', { name: householdName });
+      const { data } = await apiClient.post('/households', { name: trimmedName });
       setHouseholdInStore(data.id as string);
     } catch {
       setError('Could not create household. Please try again.');
@@ -29,10 +34,11 @@ export function HouseholdOnboarding() {
 
   const handleJoin = async (e: React.FormEvent) => {
     e.preventDefault();
+    const trimmedId = householdId.trim();
     setError('');
     setLoading(true);
     try {
-      const { data } = await apiClient.post('/households/join', { householdId });
+      const { data } = await apiClient.post('/households/join', { householdId: trimmedId });
       setHouseholdInStore(data.id as string);
     } catch {
       setError('Household not found. Check the ID and try again.');

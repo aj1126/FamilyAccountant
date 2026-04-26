@@ -17,7 +17,7 @@ type Mode = 'choose' | 'create' | 'join';
 export default function HouseholdOnboardingScreen() {
   const [mode, setMode] = useState<Mode>('choose');
   const [householdName, setHouseholdName] = useState('');
-  const [householdId, setHouseholdId] = useState('');
+  const [joinHouseholdId, setJoinHouseholdId] = useState('');
   const [loading, setLoading] = useState(false);
 
   const setHouseholdInStore = useAuthStore((s) => s.setHouseholdId);
@@ -42,12 +42,12 @@ export default function HouseholdOnboardingScreen() {
   };
 
   const handleJoin = async () => {
-    if (!householdId.trim()) return;
+    if (!joinHouseholdId.trim()) return;
     setLoading(true);
     try {
       const { data } = await apiClient.post(
         '/households/join',
-        { householdId: householdId.trim() },
+        { householdId: joinHouseholdId.trim() },
         { headers: { Authorization: `Bearer ${accessToken}` } },
       );
       await setHouseholdInStore(data.id as string);
@@ -109,8 +109,8 @@ export default function HouseholdOnboardingScreen() {
           <TextInput
             style={styles.input}
             placeholder="Paste the household ID here"
-            value={householdId}
-            onChangeText={setHouseholdId}
+            value={joinHouseholdId}
+            onChangeText={setJoinHouseholdId}
             autoFocus
             autoCapitalize="none"
           />

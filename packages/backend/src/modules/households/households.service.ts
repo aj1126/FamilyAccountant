@@ -1,4 +1,4 @@
-import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
+import { Injectable, ForbiddenException, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { HouseholdEntity } from '../../entities/household.entity';
@@ -33,6 +33,8 @@ export class HouseholdsService {
   }
 
   async join(userId: string, dto: JoinHouseholdDto): Promise<HouseholdEntity> {
+    const user = await this.usersService.findById(userId);
+    if (user?.householdId) throw new ConflictException('User is already a member of a household');
     const household = await this.findById(dto.householdId);
     if (!household) throw new NotFoundException('Household not found');
     await this.usersService.updateHousehold(userId, household.id);
