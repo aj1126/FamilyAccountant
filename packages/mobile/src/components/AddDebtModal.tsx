@@ -11,7 +11,7 @@ import {
 import { useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '../services/api.client';
 import { useAuthStore } from '../stores/auth.store';
-import { DebtDirection } from '@family-accountant/shared';
+import { CreateDebtDto, DebtDirection } from '@family-accountant/shared';
 
 const DIRECTIONS: { value: DebtDirection; label: string }[] = [
   { value: 'i_owe', label: 'I owe' },
@@ -43,7 +43,7 @@ export function AddDebtModal({ visible, onClose }: Props) {
       return;
     }
     try {
-      await apiClient.post('/debts', {
+      const body: CreateDebtDto = {
         description: description.trim(),
         amount: parsedAmount,
         currency: currency.trim() || 'USD',
@@ -53,7 +53,8 @@ export function AddDebtModal({ visible, onClose }: Props) {
         // set to the current user's ID; the direction field captures who owes whom.
         creditorId: userId,
         debtorId: userId,
-      });
+      };
+      await apiClient.post('/debts', body);
       qc.invalidateQueries({ queryKey: ['debts'] });
       setDescription('');
       setAmount('');
