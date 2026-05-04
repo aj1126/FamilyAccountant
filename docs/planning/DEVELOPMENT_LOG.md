@@ -192,11 +192,55 @@ Every list screen currently shows only a plain text "No X yet" or nothing at all
 **Current state:** `app.module.ts` uses `synchronize: config.get<string>('NODE_ENV') !== 'production'` — schema sync is on in development and off in production. No migration files exist.
 
 **Steps:**
-- Create `packages/backend/src/migrations/` directory.
-- Run `typeorm migration:generate -n InitialSchema` (or generate one file per entity) to produce baseline migration files.
-- In `app.module.ts`, set `synchronize: false` unconditionally and add `migrations: [__dirname + '/migrations/*.js']` (or the TypeScript equivalent with `ts-node`).
-- Add `migrationsRun: true` to the TypeORM config, or add a `typeorm migration:run` step in the CI workflow before tests.
-- Update `.env.example` if the `DATABASE_URL` needs to include migration-related options.
+
+1. **Create `packages/backend/src/data-source.ts`** — TypeORM 0.3.x requires a standalone `DataSource` instance for the CLI (the `TypeOrmModule.forRootAsync` config in `app.module.ts` is not readable by the CLI). The file should load the same env vars used at runtime:
+
+   ```ts
+   // packages/backend/src/data-source.ts
+   import 'reflect-metadata';
+   import { DataSource } from 'typeorm';
+   import * as dotenv from 'dotenv';
+   dotenv.config();
+
+   export const AppDataSource = new DataSource({
+     type: 'postgres',
+     url: process.env.DATABASE_URL,
+     entities: [__dirname + '/entities/*.entity.{ts,js}'],
+     migrations: [__dirname + '/migrations/*.{ts,js}'],
+     synchronize: false,
+   });
+   ```
+
+2. **Add `typeorm` and `ts-node` CLI scripts** to `packages/backend/package.json`:
+
+   ```json
+   "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js -d src/data-source.ts",
+   "migration:generate": "pnpm typeorm migration:generate",
+   "migration:run": "pnpm typeorm migration:run",
+   "migration:revert": "pnpm typeorm migration:revert"
+   ```
+
+   `ts-node` and `tsconfig-paths` are already available as transitive dev dependencies via `@nestjs/cli`; add them explicitly to `devDependencies` if `pnpm` does not hoist them.
+
+3. **Generate the initial migration** from inside `packages/backend/`:
+
+   ```sh
+   pnpm migration:generate src/migrations/InitialSchema
+   ```
+
+   This produces `src/migrations/<timestamp>-InitialSchema.ts` reflecting the current entity definitions.
+
+4. **Update `app.module.ts`** — set `synchronize: false` unconditionally and register the migrations path:
+
+   ```ts
+   synchronize: false,
+   migrations: [__dirname + '/migrations/*.js'],
+   migrationsRun: true,
+   ```
+
+5. **CI workflow** — the `migrationsRun: true` flag above will run pending migrations automatically on startup during tests, so no separate `migration:run` CI step is needed. If `migrationsRun` is left `false`, add `pnpm --filter backend migration:run` before the Jest step in `.github/workflows/ci.yml`.
+
+6. Update `.env.example` to document any new `DATABASE_URL` format requirements if they change.
 
 #### 7.2 HouseholdGuard + remove `!` assertions
 
