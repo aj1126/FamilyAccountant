@@ -69,8 +69,10 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 }));
 
-// Clear in-memory auth state when the 401 interceptor terminates a session.
-// Storage has already been cleared by the interceptor at this point.
-setUnauthorizedHandler(() => {
-  useAuthStore.setState({ accessToken: null, refreshToken: null, userId: null, householdId: null });
+// Invoke the full logout action when the 401 interceptor terminates a session.
+// This clears all persisted storage keys (accessToken, refreshToken, userId,
+// householdId) as well as the in-memory Zustand state, ensuring the two are
+// always kept in sync.
+setUnauthorizedHandler(async () => {
+  await useAuthStore.getState().logout();
 });
