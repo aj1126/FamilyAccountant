@@ -13,11 +13,11 @@ apiClient.interceptors.request.use(async (config) => {
   return config;
 });
 
-// Callback registered by the auth store to clear in-memory state when a
+// Callback registered by the auth store to clear all auth state when a
 // session is terminated by the interceptor. The indirection avoids a circular
 // import between api.client ↔ auth.store.
-let _onUnauthorized: (() => void) | null = null;
-export function setUnauthorizedHandler(cb: () => void): void {
+let _onUnauthorized: (() => Promise<void> | void) | null = null;
+export function setUnauthorizedHandler(cb: () => Promise<void> | void): void {
   _onUnauthorized = cb;
 }
 
@@ -35,7 +35,7 @@ apiClient.interceptors.response.use(
       if (!refreshToken) {
         await SecureStore.deleteItemAsync('accessToken');
         await SecureStore.deleteItemAsync('refreshToken');
-        _onUnauthorized?.();
+        await _onUnauthorized?.();
         return Promise.reject(error);
       }
       try {
@@ -51,7 +51,7 @@ apiClient.interceptors.response.use(
       } catch {
         await SecureStore.deleteItemAsync('accessToken');
         await SecureStore.deleteItemAsync('refreshToken');
-        _onUnauthorized?.();
+        await _onUnauthorized?.();
         return Promise.reject(error);
       }
     }
