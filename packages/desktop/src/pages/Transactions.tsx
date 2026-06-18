@@ -13,6 +13,7 @@ export function Transactions() {
   const householdId = useAuthStore((s) => s.householdId);
   const userId = useAuthStore((s) => s.userId);
   const [description, setDescription] = useState('');
+  const [type, setType] = useState<'expense' | 'income'>('expense');
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('');
   const [accountId, setAccountId] = useState('');
@@ -35,8 +36,13 @@ export function Transactions() {
   const paginated = filtered.slice(0, limit);
 
   const handleAdd = async () => {
-    const parsed = parseFloat(amount);
+    let parsed = parseFloat(amount);
     if (!description || isNaN(parsed) || !householdId || !userId) return;
+    if (type === 'expense') {
+      parsed = -Math.abs(parsed);
+    } else {
+      parsed = Math.abs(parsed);
+    }
     const selectedAccount = accounts.find((a) => a.id === accountId);
     const currency = selectedAccount ? selectedAccount.currency : 'USD';
 
@@ -56,6 +62,7 @@ export function Transactions() {
     setAmount('');
     setCategory('');
     setAccountId('');
+    setType('expense');
     setLimit(20); // Reset limit on add
   };
 
@@ -91,6 +98,15 @@ export function Transactions() {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
+          <select
+            style={{ ...inputStyle, flex: 'none', width: 120 }}
+            value={type}
+            onChange={(e) => setType(e.target.value as 'expense' | 'income')}
+            aria-label="Transaction Type"
+          >
+            <option value="expense">Expense</option>
+            <option value="income">Deposit</option>
+          </select>
           <input
             style={{ ...inputStyle, width: 120 }}
             placeholder="Amount"
