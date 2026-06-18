@@ -42,7 +42,7 @@ export class SyncQueue {
             this.baseDelayMs * Math.pow(2, item.retries - 1),
             this.maxDelayMs,
           );
-          await new Promise((resolve) => setTimeout(resolve, delay));
+          await new Promise((resolve) => setTimeout(() => resolve(undefined), delay));
         }
       }
     }

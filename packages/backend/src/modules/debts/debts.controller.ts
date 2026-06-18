@@ -3,12 +3,13 @@ import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { DebtsService } from './debts.service';
 import { CreateDebtDto } from './dtos/create-debt.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { HouseholdMemberGuard } from '../../common/guards/household-member.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { UserEntity } from '../../entities/user.entity';
 
 @ApiTags('debts')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, HouseholdMemberGuard)
 @Controller('debts')
 export class DebtsController {
   constructor(private readonly debtsService: DebtsService) {}

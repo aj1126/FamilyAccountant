@@ -8,10 +8,13 @@ export default function TransactionsScreen() {
   const transactions = useTransactionStore((s) => s.transactions);
   const [showModal, setShowModal] = useState(false);
   const [search, setSearch] = useState('');
+  const [limit, setLimit] = useState(20);
 
   const filtered = transactions.filter((t) =>
     t.description.toLowerCase().includes(search.toLowerCase()),
   );
+
+  const paginated = filtered.slice(0, limit);
 
   return (
     <View style={styles.container}>
@@ -19,11 +22,20 @@ export default function TransactionsScreen() {
         style={styles.search}
         placeholder="Search transactions..."
         value={search}
-        onChangeText={setSearch}
+        onChangeText={(text) => {
+          setSearch(text);
+          setLimit(20); // Reset pagination on search
+        }}
       />
       <FlatList
-        data={filtered}
+        data={paginated}
         keyExtractor={(item) => item.id}
+        onEndReached={() => {
+          if (limit < filtered.length) {
+            setLimit((prev) => prev + 20);
+          }
+        }}
+        onEndReachedThreshold={0.3}
         renderItem={({ item }) => (
           <View style={styles.row}>
             <View>

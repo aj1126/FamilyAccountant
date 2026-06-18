@@ -31,7 +31,11 @@ export class HouseholdsService {
   async getHousehold(householdId: string, requesterId: string) {
     const household = await this.findById(householdId);
     if (!household) throw new NotFoundException('Household not found');
-    if (household.ownerId !== requesterId) throw new ForbiddenException();
+    const user = await this.usersService.findById(requesterId);
+    if (!user) throw new NotFoundException('User not found');
+    if (user.householdId !== household.id && household.ownerId !== requesterId) {
+      throw new ForbiddenException('You do not belong to this household');
+    }
     return household;
   }
 

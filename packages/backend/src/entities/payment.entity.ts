@@ -4,16 +4,23 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
+  Index,
 } from 'typeorm';
+import { DebtEntity } from './debt.entity';
+import { HouseholdEntity } from './household.entity';
 
 @Entity('payments')
 export class PaymentEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
+  @Index()
   @Column({ type: 'uuid' })
   debtId!: string;
 
+  @Index()
   @Column({ type: 'uuid' })
   householdId!: string;
 
@@ -42,4 +49,13 @@ export class PaymentEntity {
 
   @UpdateDateColumn()
   updatedAt!: Date;
+
+  @ManyToOne(() => DebtEntity, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'debtId' })
+  debt?: DebtEntity;
+
+  @ManyToOne(() => HouseholdEntity, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'householdId' })
+  household?: HouseholdEntity;
 }
+

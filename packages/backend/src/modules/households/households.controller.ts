@@ -7,6 +7,8 @@ import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { UserEntity } from '../../entities/user.entity';
 
+import { HouseholdMemberGuard } from '../../common/guards/household-member.guard';
+
 @ApiTags('households')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
@@ -24,7 +26,14 @@ export class HouseholdsController {
     return this.householdsService.join(user.id, dto);
   }
 
+  @Get('members')
+  @UseGuards(HouseholdMemberGuard)
+  findMembers(@CurrentUser() user: UserEntity) {
+    return this.householdsService.findMembers(user.householdId!);
+  }
+
   @Get(':id')
+  @UseGuards(HouseholdMemberGuard)
   findOne(@Param('id') id: string, @CurrentUser() user: UserEntity) {
     return this.householdsService.getHousehold(id, user.id);
   }

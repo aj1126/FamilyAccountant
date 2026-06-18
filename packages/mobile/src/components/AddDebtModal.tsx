@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Modal,
   View,
@@ -8,7 +8,7 @@ import {
   StyleSheet,
   Alert,
 } from 'react-native';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQueryClient, useQuery } from '@tanstack/react-query';
 import { apiClient } from '../services/api.client';
 import { useAuthStore } from '../stores/auth.store';
 import { CreateDebtDto, DebtDirection } from '@family-accountant/shared';
@@ -27,10 +27,24 @@ export function AddDebtModal({ visible, onClose }: Props) {
   const qc = useQueryClient();
   const userId = useAuthStore((s) => s.userId);
 
+  const { data: members = [] } = useQuery<any[]>({
+    queryKey: ['members'],
+    queryFn: () => apiClient.get('/households/members').then((r) => r.data),
+  });
+
+  const otherMembers = members.filter((m) => m.id !== userId);
+
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
   const [currency, setCurrency] = useState('USD');
   const [direction, setDirection] = useState<DebtDirection>('i_owe');
+  const [counterpartyId, setCounterpartyId] = useState('');
+
+  useEffect(() => {
+    if (otherMembers.length > 0 && !counterpartyId) {
+      setCounterpartyId(otherMembers[0].id);
+    }
+  }, [otherMembers, counterpartyId]);
 
   const handleSubmit = async () => {
     const parsedAmount = parseFloat(amount);
@@ -42,17 +56,21 @@ export function AddDebtModal({ visible, onClose }: Props) {
       Alert.alert('Error', 'User not identified. Please log in again.');
       return;
     }
+    if (!counterpartyId) {
+      Alert.alert('Validation', 'Please select a household member as the counterparty.');
+      return;
+    }
     try {
+      const creditorId = direction === 'i_owe' ? counterpartyId : userId;
+      const debtorId = direction === 'i_owe' ? userId : counterpartyId;
+
       const body: CreateDebtDto = {
         description: description.trim(),
         amount: parsedAmount,
         currency: currency.trim() || 'USD',
         direction,
-        // TODO (Phase 4.3): replace with proper counterparty user-ID lookup once
-        // multi-user search is built. Until then, both creditorId and debtorId are
-        // set to the current user's ID; the direction field captures who owes whom.
-        creditorId: userId,
-        debtorId: userId,
+        creditorId,
+        debtorId,
       };
       await apiClient.post('/debts', body);
       qc.invalidateQueries({ queryKey: ['debts'] });
@@ -60,6 +78,11 @@ export function AddDebtModal({ visible, onClose }: Props) {
       setAmount('');
       setCurrency('USD');
       setDirection('i_owe');
+      if (otherMembers.length > 0) {
+        setCounterpartyId(otherMembers[0].id);
+      } else {
+        setCounterpartyId('');
+      }
       onClose();
     } catch {
       Alert.alert('Error', 'Failed to record debt. Please try again.');
@@ -97,7 +120,7 @@ export function AddDebtModal({ visible, onClose }: Props) {
             accessibilityLabel="Currency"
           />
 
-          {/* Direction picker */}
+           {/* Direction picker */}
           <Text style={styles.label}>Direction</Text>
           <View style={styles.dirRow}>
             {DIRECTIONS.map((d) => (
@@ -114,6 +137,28 @@ export function AddDebtModal({ visible, onClose }: Props) {
               </TouchableOpacity>
             ))}
           </View>
+
+          {/* Household member picker */}
+          <Text style={styles.label}>Household Member</Text>
+          {otherMembers.length === 0 ? (
+            <Text style={styles.noMembersText}>No other members found in household.</Text>
+          ) : (
+            <View style={styles.membersRow}>
+              {otherMembers.map((m) => (
+                <TouchableOpacity
+                  key={m.id}
+                  style={[styles.memberChip, counterpartyId === m.id && styles.chipSelected]}
+                  onPress={() => setCounterpartyId(m.id)}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Member: ${m.displayName || m.email}`}
+                >
+                  <Text style={[styles.chipText, counterpartyId === m.id && styles.chipTextSelected]}>
+                    {m.displayName || m.email}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
 
           <TouchableOpacity style={styles.button} onPress={handleSubmit} accessibilityRole="button">
             <Text style={styles.buttonText}>Save</Text>
@@ -166,4 +211,15 @@ const styles = StyleSheet.create({
   buttonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
   cancel: { padding: 14, alignItems: 'center', marginTop: 4 },
   cancelText: { color: '#64748b', fontSize: 15 },
+  membersRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 16 },
+  memberChip: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+    backgroundColor: '#f8fafc',
+    alignItems: 'center',
+  },
+  noMembersText: { fontSize: 14, color: '#94a3b8', marginBottom: 16, fontStyle: 'italic' },
 });

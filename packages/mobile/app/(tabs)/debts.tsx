@@ -2,17 +2,30 @@ import React, { useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '../../src/services/api.client';
+import { useAuthStore } from '../../src/stores/auth.store';
 import { AddDebtModal } from '../../src/components/AddDebtModal';
 import { Debt } from '@family-accountant/shared';
 
 export default function DebtsScreen() {
   const qc = useQueryClient();
+  const userId = useAuthStore((s) => s.userId);
   const [showModal, setShowModal] = useState(false);
 
   const { data: debts = [], isLoading } = useQuery<Debt[]>({
     queryKey: ['debts'],
     queryFn: () => apiClient.get('/debts').then((r) => r.data),
   });
+
+  const { data: members = [] } = useQuery<any[]>({
+    queryKey: ['members'],
+    queryFn: () => apiClient.get('/households/members').then((r) => r.data),
+  });
+
+  const getCounterpartyName = (debt: Debt) => {
+    const cpId = debt.creditorId === userId ? debt.debtorId : debt.creditorId;
+    const member = members.find((m) => m.id === cpId);
+    return member ? (member.displayName || member.email) : 'Unknown User';
+  };
 
   const settleMutation = useMutation({
     mutationFn: (id: string) => apiClient.patch(`/debts/${id}/settle`).then((r) => r.data),
@@ -33,7 +46,7 @@ export default function DebtsScreen() {
             <View style={styles.info}>
               <Text style={styles.desc}>{item.description}</Text>
               <Text style={styles.direction}>
-                {item.direction === 'i_owe' ? 'I owe' : 'Owed to me'}
+                {item.direction === 'i_owe' ? `I owe ${getCounterpartyName(item)}` : `${getCounterpartyName(item)} owes me`}
               </Text>
             </View>
             <View style={styles.right}>

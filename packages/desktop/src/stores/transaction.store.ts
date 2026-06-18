@@ -10,6 +10,7 @@ declare global {
       getTransactions: () => Promise<Transaction[]>;
       addTransaction: (tx: Transaction) => Promise<Transaction>;
       updateSyncStatus: (id: string, status: string) => Promise<void>;
+      openHelp: () => Promise<void>;
     };
   }
 }
@@ -20,7 +21,7 @@ interface TransactionState {
   transactions: Transaction[];
   loadFromDb: () => Promise<void>;
   addTransaction: (tx: Omit<Transaction, 'id' | 'syncStatus' | 'createdAt' | 'updatedAt'>) => Promise<void>;
-  syncWithServer: (lastSyncedAt: string | null) => Promise<void>;
+  syncWithServer: (forcedLastSyncedAt?: string | null) => Promise<void>;
 }
 
 export const useTransactionStore = create<TransactionState>((set, get) => ({
@@ -44,17 +45,43 @@ export const useTransactionStore = create<TransactionState>((set, get) => ({
 
     await window.electronAPI.addTransaction(tx);
     set((state) => ({ transactions: [tx, ...state.transactions] }));
-    syncQueue.enqueue(() => get().syncWithServer(null));
+    syncQueue.enqueue(() => get().syncWithServer());
   },
 
-  syncWithServer: async (lastSyncedAt) => {
+  syncWithServer: async (forcedLastSyncedAt) => {
+    const lastSyncedAt = forcedLastSyncedAt !== undefined 
+      ? forcedLastSyncedAt 
+      : localStorage.getItem('lastSyncedAt');
+
     const pending = get().transactions.filter((t) => t.syncStatus === 'pending');
-    const { data } = await apiClient.post('/sync', { transactions: pending, lastSyncedAt });
+    
+    try {
+      const { data } = await apiClient.post('/sync', { transactions: pending, lastSyncedAt });
 
-    for (const serverTx of data.transactions as Transaction[]) {
-      await window.electronAPI.updateSyncStatus(serverTx.localId, 'synced');
+      for (const serverTx of data.transactions as Transaction[]) {
+        await window.electronAPI.addTransaction({
+          ...serverTx,
+          syncStatus: 'synced',
+        });
+      }
+
+      const syncedLocalIds = new Set(
+        (data.transactions as Transaction[]).map((t) => t.localId),
+      );
+      for (const localId of syncedLocalIds) {
+        await window.electronAPI.updateSyncStatus(localId, 'synced');
+      }
+
+      const newSyncTime = new Date().toISOString();
+      localStorage.setItem('lastSyncedAt', newSyncTime);
+
+      await get().loadFromDb();
+    } catch (err) {
+      for (const tx of pending) {
+        await window.electronAPI.updateSyncStatus(tx.localId, 'error');
+      }
+      await get().loadFromDb();
+      throw err;
     }
-
-    await get().loadFromDb();
   },
 }));

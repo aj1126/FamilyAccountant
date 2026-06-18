@@ -5,7 +5,11 @@ import { SyncStatusBadge } from '../../src/components/SyncStatusBadge';
 
 export default function DashboardScreen() {
   const transactions = useTransactionStore((s) => s.transactions);
-  const total = transactions.reduce((sum, t) => sum + Number(t.amount), 0);
+  const currencyTotals = transactions.reduce((totals, t) => {
+    const curr = t.currency || 'USD';
+    totals[curr] = (totals[curr] ?? 0) + Number(t.amount);
+    return totals;
+  }, {} as Record<string, number>);
   const pending = transactions.filter((t) => t.syncStatus === 'pending').length;
 
   return (
@@ -13,9 +17,15 @@ export default function DashboardScreen() {
       <Text style={styles.heading}>Dashboard</Text>
       <View style={styles.card}>
         <Text style={styles.label}>Total Spent</Text>
-        <Text style={styles.amount}>
-          {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(total)}
-        </Text>
+        {Object.keys(currencyTotals).length === 0 ? (
+          <Text style={styles.amount}>$0.00</Text>
+        ) : (
+          Object.entries(currencyTotals).map(([curr, amt]) => (
+            <Text key={curr} style={styles.amount}>
+              {new Intl.NumberFormat('en-US', { style: 'currency', currency: curr }).format(amt)}
+            </Text>
+          ))
+        )}
       </View>
       <View style={styles.card}>
         <Text style={styles.label}>Pending Sync</Text>

@@ -3,6 +3,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { DebtsService } from './debts.service';
 import { DebtEntity } from '../../entities/debt.entity';
+import { UserEntity } from '../../entities/user.entity';
 import { DebtDirection } from './dtos/create-debt.dto';
 
 const HOUSEHOLD_A = 'aaaa0000-0000-0000-0000-000000000001';
@@ -34,6 +35,9 @@ describe('DebtsService', () => {
     findOneBy: jest.fn(),
     update: jest.fn(),
   };
+  const mockUserRepo = {
+    findOneBy: jest.fn(),
+  };
 
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -41,6 +45,7 @@ describe('DebtsService', () => {
       providers: [
         DebtsService,
         { provide: getRepositoryToken(DebtEntity), useValue: mockRepo },
+        { provide: getRepositoryToken(UserEntity), useValue: mockUserRepo },
       ],
     }).compile();
     service = module.get(DebtsService);
@@ -48,6 +53,11 @@ describe('DebtsService', () => {
 
   describe('create', () => {
     it('should create and return a debt', async () => {
+      mockUserRepo.findOneBy.mockImplementation(({ id }) => {
+        if (id === CREDITOR_ID) return Promise.resolve({ id: CREDITOR_ID, householdId: HOUSEHOLD_A });
+        if (id === DEBTOR_ID) return Promise.resolve({ id: DEBTOR_ID, householdId: HOUSEHOLD_A });
+        return Promise.resolve(null);
+      });
       mockRepo.create.mockReturnValue(mockDebt);
       mockRepo.save.mockResolvedValue(mockDebt);
       const result = await service.create(HOUSEHOLD_A, {
@@ -60,6 +70,33 @@ describe('DebtsService', () => {
       });
       expect(mockRepo.create).toHaveBeenCalledWith(expect.objectContaining({ householdId: HOUSEHOLD_A }));
       expect(result).toEqual(mockDebt);
+    });
+
+    it('should throw ForbiddenException if creditor and debtor are identical', async () => {
+      await expect(service.create(HOUSEHOLD_A, {
+        creditorId: CREDITOR_ID,
+        debtorId: CREDITOR_ID,
+        amount: 200,
+        currency: 'USD',
+        description: 'Self debt',
+        direction: DebtDirection.OwedToMe,
+      })).rejects.toBeInstanceOf(ForbiddenException);
+    });
+
+    it('should throw ForbiddenException if creditor belongs to a different household', async () => {
+      mockUserRepo.findOneBy.mockImplementation(({ id }) => {
+        if (id === CREDITOR_ID) return Promise.resolve({ id: CREDITOR_ID, householdId: HOUSEHOLD_B });
+        if (id === DEBTOR_ID) return Promise.resolve({ id: DEBTOR_ID, householdId: HOUSEHOLD_A });
+        return Promise.resolve(null);
+      });
+      await expect(service.create(HOUSEHOLD_A, {
+        creditorId: CREDITOR_ID,
+        debtorId: DEBTOR_ID,
+        amount: 200,
+        currency: 'USD',
+        description: 'Cross debt',
+        direction: DebtDirection.OwedToMe,
+      })).rejects.toBeInstanceOf(ForbiddenException);
     });
   });
 

@@ -1,7 +1,7 @@
 {
   "name": "@family-accountant/desktop",
   "version": "1.0.0",
-  "main": "dist-electron/main.js",
+  "main": "electron/main.js",
   "scripts": {
     "dev": "concurrently \"vite\" \"electron .\"",
     "build": "tsc && vite build && electron-builder",
@@ -31,5 +31,26 @@
     "electron-builder": "^24.13.3",
     "typescript": "^5.4.5",
     "vite": "^6.4.2"
+  },
+  "build": {
+    "appId": "com.familyaccountant.desktop",
+    "productName": "FamilyAccountant",
+    "directories": {
+      "output": "dist-packaged"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": "nsis"
+    },
+    "mac": {
+      "target": "dmg"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
   }
 }
