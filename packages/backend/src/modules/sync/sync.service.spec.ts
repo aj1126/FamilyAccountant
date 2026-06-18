@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { SyncService } from './sync.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { TransactionEntity } from '../../entities/transaction.entity';
+import { AccountEntity } from '../../entities/account.entity';
 
 const mockTx = {
   id: 'a1b2c3d4-0000-0000-0000-000000000001',
@@ -28,6 +29,10 @@ describe('SyncService', () => {
     save: jest.fn(),
     create: jest.fn(),
   };
+  const mockAccountRepo = {
+    findOneBy: jest.fn(),
+    save: jest.fn(),
+  };
 
   afterEach(() => {
     jest.clearAllMocks();
@@ -41,6 +46,10 @@ describe('SyncService', () => {
         {
           provide: getRepositoryToken(TransactionEntity),
           useValue: mockRepo,
+        },
+        {
+          provide: getRepositoryToken(AccountEntity),
+          useValue: mockAccountRepo,
         },
       ],
     }).compile();

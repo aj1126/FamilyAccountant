@@ -43,8 +43,8 @@ export class TransactionsService {
     const tx = this.repo.create({ ...dto, userId, householdId, syncStatus: 'synced' });
     const saved = await this.repo.save(tx);
     
-    // Decrease account balance (spent transaction)
-    await this.adjustAccountBalance(dto.accountId, -dto.amount);
+    // Adjust account balance (signed transaction amount)
+    await this.adjustAccountBalance(dto.accountId, dto.amount);
     
     return saved;
   }
@@ -80,13 +80,12 @@ export class TransactionsService {
     // Adjust balances:
     if (oldAccountId !== newAccountId) {
       // Refund old account
-      await this.adjustAccountBalance(oldAccountId, oldAmount);
+      await this.adjustAccountBalance(oldAccountId, -oldAmount);
       // Charge new account
-      await this.adjustAccountBalance(newAccountId, -newAmount);
+      await this.adjustAccountBalance(newAccountId, newAmount);
     } else if (oldAmount !== newAmount) {
       // Same account, different amount: adjust by delta
-      const delta = oldAmount - newAmount;
-      await this.adjustAccountBalance(oldAccountId, delta);
+      await this.adjustAccountBalance(oldAccountId, newAmount - oldAmount);
     }
 
     return updated;
@@ -96,7 +95,7 @@ export class TransactionsService {
     const tx = await this.findOne(id, householdId);
     await this.repo.softDelete(id);
     
-    // Increase account balance (refund transaction amount)
-    await this.adjustAccountBalance(tx.accountId, tx.amount);
+    // Adjust account balance (refund transaction amount)
+    await this.adjustAccountBalance(tx.accountId, -tx.amount);
   }
 }
