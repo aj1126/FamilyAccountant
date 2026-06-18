@@ -5,6 +5,9 @@ import { HouseholdEntity } from '../../entities/household.entity';
 import { UsersService } from '../users/users.service';
 import { CreateHouseholdDto } from './dtos/create-household.dto';
 import { JoinHouseholdDto } from './dtos/join-household.dto';
+import { UserEntity } from '../../entities/user.entity';
+
+type SafeUser = Omit<UserEntity, 'passwordHash'>;
 
 @Injectable()
 export class HouseholdsService {
@@ -39,5 +42,11 @@ export class HouseholdsService {
     if (!household) throw new NotFoundException('Household not found');
     await this.usersService.updateHousehold(userId, household.id);
     return household;
+  }
+
+  async findMembers(householdId: string): Promise<SafeUser[]> {
+    const members = await this.usersService.findByHousehold(householdId);
+    // Strip password hashes from user responses
+    return members.map(({ passwordHash: _passwordHash, ...user }) => user as SafeUser);
   }
 }
