@@ -8,17 +8,20 @@ import {
   ManyToOne,
   JoinColumn,
   Index,
+  Unique,
 } from 'typeorm';
 import { UserEntity } from './user.entity';
 import { AccountEntity } from './account.entity';
 import { HouseholdEntity } from './household.entity';
+import { CategoryEntity } from './category.entity';
 
 @Entity('transactions')
+@Unique(['householdId', 'localId'])
 export class TransactionEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column({ unique: true })
+  @Column()
   localId!: string;
 
   @Index()
@@ -52,6 +55,14 @@ export class TransactionEntity {
 
   @Column({ default: '' })
   category!: string;
+
+  @Index()
+  @Column({ type: 'uuid', nullable: true })
+  categoryId?: string | null;
+
+  @ManyToOne(() => CategoryEntity, { onDelete: 'SET NULL', nullable: true })
+  @JoinColumn({ name: 'categoryId' })
+  categoryEntity?: CategoryEntity | null;
 
   @Index()
   @Column({ type: 'date' })
