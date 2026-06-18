@@ -11,11 +11,13 @@ import { apiClient } from '../services/api.client';
 export function Transactions() {
   const { transactions, loadFromDb, addTransaction } = useTransactionStore();
   const householdId = useAuthStore((s) => s.householdId);
+  const userId = useAuthStore((s) => s.userId);
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('');
   const [accountId, setAccountId] = useState('');
   const [search, setSearch] = useState('');
+  const [limit, setLimit] = useState(20);
 
   const { data: accounts = [] } = useQuery<Account[]>({
     queryKey: ['accounts'],
@@ -30,15 +32,21 @@ export function Transactions() {
     t.description.toLowerCase().includes(search.toLowerCase()),
   );
 
+  const paginated = filtered.slice(0, limit);
+
   const handleAdd = async () => {
     const parsed = parseFloat(amount);
-    if (!description || isNaN(parsed) || !householdId) return;
+    if (!description || isNaN(parsed) || !householdId || !userId) return;
+    const selectedAccount = accounts.find((a) => a.id === accountId);
+    const currency = selectedAccount ? selectedAccount.currency : 'USD';
+
     await addTransaction({
       localId: uuidv4(),
       accountId: accountId || undefined,
       householdId,
+      userId,
       amount: parsed,
-      currency: 'USD',
+      currency,
       description,
       category,
       transactionDate: new Date().toISOString().split('T')[0],
@@ -48,6 +56,7 @@ export function Transactions() {
     setAmount('');
     setCategory('');
     setAccountId('');
+    setLimit(20); // Reset limit on add
   };
 
   const handleExport = () => {
@@ -122,10 +131,13 @@ export function Transactions() {
         style={{ ...inputStyle, width: '100%', marginBottom: 12 }}
         placeholder="Search transactions..."
         value={search}
-        onChange={(e) => setSearch(e.target.value)}
+        onChange={(e) => {
+          setSearch(e.target.value);
+          setLimit(20); // Reset limit on search
+        }}
       />
 
-      <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, overflow: 'hidden' }}>
+      <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, overflow: 'hidden', marginBottom: 16 }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ background: '#f8fafc' }}>
@@ -135,7 +147,7 @@ export function Transactions() {
             </tr>
           </thead>
           <tbody>
-            {filtered.map((tx: Transaction) => (
+            {paginated.map((tx: Transaction) => (
               <tr key={tx.id} style={{ borderTop: '1px solid #f1f5f9' }}>
                 <td style={tdStyle}>{tx.transactionDate}</td>
                 <td style={tdStyle}>{tx.description}</td>
@@ -148,7 +160,7 @@ export function Transactions() {
                 </td>
               </tr>
             ))}
-            {filtered.length === 0 && (
+            {paginated.length === 0 && (
               <tr>
                 <td colSpan={5} style={{ ...tdStyle, textAlign: 'center', color: '#94a3b8', padding: '32px 16px' }}>
                   No transactions yet
@@ -158,6 +170,25 @@ export function Transactions() {
           </tbody>
         </table>
       </div>
+
+      {limit < filtered.length && (
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 24 }}>
+          <button
+            onClick={() => setLimit((prev) => prev + 20)}
+            style={{
+              padding: '8px 24px',
+              background: '#f1f5f9',
+              color: '#475569',
+              border: '1px solid #cbd5e1',
+              borderRadius: 8,
+              cursor: 'pointer',
+              fontWeight: 500,
+            }}
+          >
+            Load More
+          </button>
+        </div>
+      )}
     </div>
   );
 }

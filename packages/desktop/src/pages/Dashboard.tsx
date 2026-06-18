@@ -24,7 +24,11 @@ function getMonthlyData(transactions: { transactionDate: string; amount: number 
 
 export function Dashboard() {
   const transactions = useTransactionStore((s) => s.transactions);
-  const total = transactions.reduce((sum, t) => sum + Number(t.amount), 0);
+  const currencyTotals = transactions.reduce((totals, t) => {
+    const curr = t.currency || 'USD';
+    totals[curr] = (totals[curr] ?? 0) + Number(t.amount);
+    return totals;
+  }, {} as Record<string, number>);
   const monthlyData = getMonthlyData(transactions);
 
   return (
@@ -48,7 +52,15 @@ export function Dashboard() {
         >
           <div style={{ fontSize: 13, color: '#64748b' }}>Total Spent</div>
           <div style={{ fontSize: 28, fontWeight: 700, marginTop: 4 }}>
-            {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(total)}
+            {Object.keys(currencyTotals).length === 0 ? (
+              '$0.00'
+            ) : (
+              Object.entries(currencyTotals).map(([curr, amt]) => (
+                <div key={curr} style={{ fontSize: 24, fontWeight: 700, lineHeight: '1.2' }}>
+                  {new Intl.NumberFormat('en-US', { style: 'currency', currency: curr }).format(amt)}
+                </div>
+              ))
+            )}
           </div>
         </div>
         <div

@@ -4,13 +4,18 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
+  Index,
 } from 'typeorm';
+import { HouseholdEntity } from './household.entity';
 
 @Entity('accounts')
 export class AccountEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
+  @Index()
   @Column({ type: 'uuid' })
   householdId!: string;
 
@@ -40,4 +45,9 @@ export class AccountEntity {
 
   @UpdateDateColumn()
   updatedAt!: Date;
+
+  @ManyToOne(() => HouseholdEntity, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'householdId' })
+  household?: HouseholdEntity;
 }
+

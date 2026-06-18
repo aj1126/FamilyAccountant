@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FamilyAccountant User Documentation & Sync Manual</title>
+  
+  <!-- Premium Typography: Outfit & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary: #3b82f6;
+      --primary-rgb: 59, 130, 246;
+      --primary-hover: #2563eb;
+      --accent: #8b5cf6;
+      --accent-rgb: 139, 92, 246;
+      --bg: #0b0f19;
+      --sidebar-bg: #0f172a;
+      --surface: rgba(20, 26, 45, 0.65);
+      --surface-border: rgba(255, 255, 255, 0.07);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: #1e293b;
+      --radius: 16px;
+      --sidebar-width: 300px;
+      --font-title: 'Outfit', sans-serif;
+      --font-body: 'Inter', sans-serif;
+      --shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.7);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      display: flex;
+      min-height: 100vh;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(139, 92, 246, 0.08) 0%, transparent 40%);
+      background-attachment: fixed;
+    }
+
+    /* Scrollbar Styling */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--text-muted);
+    }
+
+    /* Sidebar Navigation (Glassmorphic) */
+    aside {
+      width: var(--sidebar-width);
+      background-color: var(--sidebar-bg);
+      border-right: 1px solid var(--border);
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      padding: 40px 24px;
+      overflow-y: auto;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .logo-container {
+      margin-bottom: 48px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 800;
+      font-family: var(--font-title);
+      font-size: 20px;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    .logo-text {
+      font-family: var(--font-title);
+      font-size: 22px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #ffffff, #94a3b8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-decoration: none;
+    }
+
+    .nav-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .nav-item a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      color: var(--text-muted);
+      text-decoration: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 1px solid transparent;
+    }
+
+    .nav-item a:hover {
+      background-color: rgba(255, 255, 255, 0.03);
+      color: var(--text);
+      transform: translateX(4px);
+    }
+
+    .nav-item.active a {
+      background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.15), rgba(var(--accent-rgb), 0.15));
+      border-color: rgba(var(--primary-rgb), 0.3);
+      color: #ffffff;
+      font-weight: 600;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Main Container */
+    main {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      padding: 64px 80px;
+      max-width: 1100px;
+    }
+
+    /* Header & Hero Area */
+    header {
+      margin-bottom: 56px;
+    }
+
+    h1 {
+      font-family: var(--font-title);
+      font-size: 40px;
+      font-weight: 800;
+      margin-bottom: 12px;
+      letter-spacing: -0.8px;
+      background: linear-gradient(135deg, #ffffff 30%, #a5b4fc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 16px;
+      margin-bottom: 32px;
+      font-weight: 400;
+    }
+
+    .search-wrapper {
+      position: relative;
+      max-width: 560px;
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 16px 20px;
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius);
+      font-family: var(--font-body);
+      font-size: 15px;
+      background-color: rgba(30, 41, 59, 0.5);
+      color: var(--text);
+      outline: none;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    .search-input:focus {
+      border-color: rgba(var(--primary-rgb), 0.5);
+      background-color: rgba(30, 41, 59, 0.8);
+      box-shadow: 0 0 20px rgba(var(--primary-rgb), 0.2);
+    }
+
+    /* Card Panels Styling */
+    section {
+      background-color: var(--surface);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius);
+      padding: 40px;
+      margin-bottom: 40px;
+      box-shadow: var(--shadow);
+      scroll-margin-top: 40px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    section:hover {
+      transform: translateY(-2px);
+      border-color: rgba(var(--primary-rgb), 0.25);
+      box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.8), 0 0 20px rgba(var(--primary-rgb), 0.05);
+    }
+
+    section.hidden {
+      display: none;
+      opacity: 0;
+      transform: scale(0.95);
+    }
+
+    h2 {
+      font-family: var(--font-title);
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #ffffff;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
+    }
+
+    h2 svg {
+      color: var(--primary);
+    }
+
+    p {
+      color: var(--text-muted);
+      margin-bottom: 20px;
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    ul, ol {
+      margin-left: 24px;
+      margin-bottom: 20px;
+      color: var(--text-muted);
+      font-size: 15px;
+    }
+
+    li {
+      margin-bottom: 10px;
+      line-height: 1.6;
+    }
+
+    strong {
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    /* Demo Sync Badges */
+    .badge-demo-container {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background-color: rgba(15, 23, 42, 0.4);
+      border: 1px solid var(--border);
+      padding: 16px 20px;
+      border-radius: 12px;
+      margin-bottom: 16px;
+    }
+
+    .badge-demo {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .badge-synced {
+      background-color: rgba(22, 163, 74, 0.15);
+      color: #4ade80;
+      border: 1px solid rgba(74, 222, 128, 0.3);
+    }
+
+    .badge-pending {
+      background-color: rgba(234, 179, 8, 0.15);
+      color: #facc15;
+      border: 1px solid rgba(250, 204, 21, 0.3);
+    }
+
+    .badge-error {
+      background-color: rgba(220, 38, 38, 0.15);
+      color: #f87171;
+      border: 1px solid rgba(248, 113, 113, 0.3);
+    }
+
+    /* Mermaid Architecture Panel */
+    .diagram-panel {
+      background-color: #0b0f19;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      margin: 28px 0;
+      overflow-x: auto;
+      display: flex;
+      justify-content: center;
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.5);
+    }
+
+    /* Accordion FAQs */
+    details {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 14px;
+      background-color: rgba(15, 23, 42, 0.3);
+      transition: all 0.3s ease;
+    }
+
+    details[open] {
+      background-color: rgba(30, 41, 59, 0.3);
+      border-color: rgba(var(--primary-rgb), 0.3);
+    }
+
+    summary {
+      font-family: var(--font-title);
+      font-weight: 600;
+      cursor: pointer;
+      outline: none;
+      font-size: 16px;
+      color: #ffffff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      list-style: none;
+    }
+
+    summary::-webkit-details-marker {
+      display: none;
+    }
+
+    summary::after {
+      content: '+';
+      font-size: 20px;
+      font-weight: 400;
+      color: var(--text-muted);
+      transition: transform 0.3s ease;
+    }
+
+    details[open] summary::after {
+      content: '−';
+      color: var(--primary);
+    }
+
+    details p {
+      margin-top: 16px;
+      margin-bottom: 0;
+      font-size: 14.5px;
+    }
+
+    /* Highlight class for search hits */
+    .highlight {
+      background-color: rgba(250, 204, 21, 0.25);
+      color: #facc15;
+      padding: 0 4px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+
+    /* Mobile Responsive Viewports */
+    @media (max-width: 900px) {
+      body {
+        flex-direction: column;
+      }
+      aside {
+        width: 100%;
+        position: relative;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        padding: 24px;
+      }
+      main {
+        margin-left: 0;
+        padding: 40px 24px;
+      }
+    }
+  </style>
+
+  <!-- Render interactive diagrams -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: "dark",
+        securityLevel: "loose",
+        flowchart: { useMaxWidth: true, htmlLabels: true }
+      });
+    });
+  </script>
+</head>
+<body>
+
+  <!-- Sidebar Navigation -->
+  <aside>
+    <div class="logo-container">
+      <div class="logo-icon">F</div>
+      <a href="#" class="logo-text">FamilyAccountant</a>
+    </div>
+    <ul class="nav-list">
+      <li id="li-quickstart" class="nav-item active">
+        <a href="#quickstart" onclick="setActive('quickstart')">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          Quick Start
+        </a>
+      </li>
+      <li id="li-households" class="nav-item">
+        <a href="#households" onclick="setActive('households')">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+          Households
+        </a>
+      </li>
+      <li id="li-accounts" class="nav-item">
+        <a href="#accounts" onclick="setActive('accounts')">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+          Accounts & Currencies
+        </a>
+      </li>
+      <li id="li-transactions" class="nav-item">
+        <a href="#transactions" onclick="setActive('transactions')">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+          Transactions
+        </a>
+      </li>
+      <li id="li-debts" class="nav-item">
+        <a href="#debts" onclick="setActive('debts')">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+          Debts & Payments
+        </a>
+      </li>
+      <li id="li-offline" class="nav-item">
+        <a href="#offline" onclick="setActive('offline')">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 8H17m-.002-.001H17v5"/></svg>
+          Offline Sync
+        </a>
+      </li>
+      <li id="li-faq" class="nav-item">
+        <a href="#faq" onclick="setActive('faq')">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          FAQs
+        </a>
+      </li>
+    </ul>
+  </aside>
+
+  <!-- Main Content View -->
+  <main>
+    <header>
+      <h1>User Documentation & Guides</h1>
+      <p class="subtitle">A premium interactive manual explaining household finance management, custom currencies, and offline-first synchronization.</p>
+      
+      <div class="search-wrapper">
+        <input 
+          type="text" 
+          id="search-input" 
+          class="search-input" 
+          placeholder="Search guidelines, error codes, sync details..."
+          oninput="handleSearch(this.value)"
+        >
+      </div>
+    </header>
+
+    <!-- 1. Quick Start -->
+    <section id="quickstart">
+      <h2>
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        1. Welcome & Quick Start
+      </h2>
+      <p>FamilyAccountant is a robust, premium personal finance solution designed for families and shared households. Key actions to start recording data include:</p>
+      <ol>
+        <li><strong>Register/Login:</strong> Launch the client and authenticate. Session checking validates credentials natively on startup.</li>
+        <li><strong>Household Selection:</strong> Join an existing household using a Join ID UUID shared by a family member, or create a new one to begin inviting household members.</li>
+        <li><strong>Add Accounts:</strong> Create accounts representing actual cash drawers, checking accounts, or credit cards. Specify their default currency (e.g. USD, EUR).</li>
+        <li><strong>Record Transactions:</strong> Record transactions with category descriptions. Accounts auto-adjust balances in response.</li>
+      </ol>
+    </section>
+
+    <!-- 2. Households -->
+    <section id="households">
+      <h2>
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        2. Household Management
+      </h2>
+      <p>To enforce strict data confidentiality, all transactions, accounts, debts, and payments are scoped exclusively to a Household.</p>
+      <ul>
+        <li><strong>Strict Gating:</strong> The backend uses a global <code>HouseholdMemberGuard</code>. All operations check that the client's user has a non-null household ID and restrict cross-household reads/writes.</li>
+        <li><strong>Inviting Members:</strong> Provide other members your household's Join ID. Once joined, everyone shares real-time access to transaction histories, debt settlements, and accounts.</li>
+      </ul>
+    </section>
+
+    <!-- 3. Accounts -->
+    <section id="accounts">
+      <h2>
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+        3. Accounts & Custom Currencies
+      </h2>
+      <p>Configure checking, savings, cash, or credit accounts to match your physical assets. We support strict multi-currency compliance:</p>
+      <ul>
+        <li><strong>Currency Scoping:</strong> Create accounts with separate ISO codes (e.g. USD, EUR). New transactions created under an account inherit its currency default automatically.</li>
+        <li><strong>Multi-Currency Dashboard:</strong> The Dashboard spent statistics group totals by currency. FamilyAccountant avoids arbitrary conversions, ensuring distinct currencies are summed separately to preserve ledger accuracy.</li>
+      </ul>
+    </section>
+
+    <!-- 4. Transactions -->
+    <section id="transactions">
+      <h2>
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+        4. Transactions & Balance Control
+      </h2>
+      <p>Transactions added under checking or cash accounts adjust account balances dynamically. The system hooks database level events to automate adjustments:</p>
+      <ul>
+        <li><strong>Additions:</strong> Recording an expense subtracts amount; recording an income adds it.</li>
+        <li><strong>Edits/Deletions:</strong> Changing transaction amounts or moving them between accounts automatically calculates deltas and updates the affected balances.</li>
+        <li><strong>Sync Status Badges:</strong></li>
+      </ul>
+      
+      <div class="badge-demo-container">
+        <span class="badge-demo badge-synced">Synced</span>
+        <p>Transaction is successfully saved on cloud database.</p>
+      </div>
+      <div class="badge-demo-container">
+        <span class="badge-demo badge-pending">Pending</span>
+        <p>Saved in local SQLite cache, waiting to push to backend server.</p>
+      </div>
+      <div class="badge-demo-container">
+        <span class="badge-demo badge-error">Error</span>
+        <p>Synchronization failed. The app will keep records cached locally and attempt a retry on reconnect.</p>
+      </div>
+    </section>
+
+    <!-- 5. Debts -->
+    <section id="debts">
+      <h2>
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+        5. Debts & Payments
+      </h2>
+      <p>Record mutual IOUs, track balances, and settle debts within the household.</p>
+      <ul>
+        <li><strong>Counterparty Validation:</strong> The debtor and creditor in a debt record must be two distinct users within the same household.</li>
+        <li><strong>Payment Tracking:</strong> Payment entries against a debt record must not exceed the remaining unpaid balance.</li>
+        <li><strong>Auto-Settling:</strong> When cumulative payments equal or exceed the debt principal, the debt state automatically toggles to <strong>Settled</strong>.</li>
+      </ul>
+    </section>
+
+    <!-- 6. Offline Synchronization -->
+    <section id="offline">
+      <h2>
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 8H17m-.002-.001H17v5"/></svg>
+        6. Offline Synchronization Architecture
+      </h2>
+      <p>FamilyAccountant implements an offline-first sync mechanism ensuring high availability even when disconnected from the cloud.</p>
+      
+      <div class="diagram-panel">
+        <pre class="mermaid">
+sequenceDiagram
+    autonumber
+    participant User
+    participant ClientStore as Client (SQLite + Store)
+    participant Server as NestJS Backend
+    participant DB as PostgreSQL Database
+
+    User->>ClientStore: Add transaction
+    ClientStore->>ClientStore: Cache in SQLite (syncStatus = pending)
+    Note over ClientStore: Monitor network connection
+    alt Device Reconnects / Online
+        ClientStore->>Server: POST /sync (pending txs + lastSyncedAt)
+        Server->>DB: Verify household & apply balance changes
+        Server->>ClientStore: Return reconciled transactions
+        ClientStore->>ClientStore: Insert server transactions in SQLite
+        ClientStore->>ClientStore: Mark status = synced & save lastSyncedAt
+    else Device is Offline
+        Note over ClientStore: Keep record cached. Display pending badge.
+        User->>ClientStore: Reconnects later
+        ClientStore->>ClientStore: Event listener triggers auto-sync
+        ClientStore->>Server: Run sync...
+    end
+        </pre>
+      </div>
+
+      <ul>
+        <li><strong>Instant App Hydration:</strong> On launch, the client hydrates its state directly from the local SQLite database. The UI is fully interactive immediately without waiting for API loads.</li>
+        <li><strong>Reconnect Triggers:</strong> Network connection change events trigger sync automatically upon returning online.</li>
+        <li><strong>Metadata Control:</strong> The client stores <code>lastSyncedAt</code>. Succeeding requests query items modified after this timestamp to minimize payload sizes.</li>
+      </ul>
+    </section>
+
+    <!-- 7. FAQs -->
+    <section id="faq">
+      <h2>
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        7. Frequently Asked Questions
+      </h2>
+      <details>
+        <summary>What happens if my sync fails due to network conflicts?</summary>
+        <p>The transaction is preserved locally with an "Error" state badge. The synchronization queue will run a retry on subsequent actions or when the network connection becomes internet-reachable.</p>
+      </details>
+      <details>
+        <summary>How does the app know which transactions to pull?</summary>
+        <p>The application sends a <code>lastSyncedAt</code> timestamp. The server returns only transaction records created or updated after that time, which the client merges into its SQLite database.</p>
+      </details>
+      <details>
+        <summary>Can household members see other members' passwords?</summary>
+        <p>No. Passwords are salted and hashed on the backend using <code>bcryptjs</code>. The <code>/households/members</code> endpoint strips all password hashes before returning user lists, ensuring strict user credential isolation.</p>
+      </details>
+    </section>
+  </main>
+
+  <script>
+    // Search Filtering & Highlighting
+    function handleSearch(query) {
+      const q = query.toLowerCase().trim();
+      const sections = document.querySelectorAll("main section");
+      
+      sections.forEach(section => {
+        // Remove old highlights first
+        removeHighlights(section);
+        
+        if (!q) {
+          section.classList.remove("hidden");
+          return;
+        }
+
+        const text = section.innerText.toLowerCase();
+        if (text.includes(q)) {
+          section.classList.remove("hidden");
+          highlightText(section, q);
+        } else {
+          section.classList.add("hidden");
+        }
+      });
+    }
+
+    function highlightText(element, query) {
+      const walk = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, null, false);
+      const textNodes = [];
+      let node;
+      
+      while (node = walk.nextNode()) {
+        if (node.parentElement.tagName !== "SCRIPT" && node.parentElement.tagName !== "STYLE" && !node.parentElement.classList.contains("mermaid")) {
+          textNodes.push(node);
+        }
+      }
+
+      textNodes.forEach(node => {
+        const text = node.nodeValue;
+        const lowerText = text.toLowerCase();
+        let index = lowerText.indexOf(query);
+        
+        if (index >= 0) {
+          const parent = node.parentElement;
+          const frag = document.createDocumentFragment();
+          let lastIndex = 0;
+          
+          while (index >= 0) {
+            frag.appendChild(document.createTextNode(text.substring(lastIndex, index)));
+            const span = document.createElement("span");
+            span.className = "highlight";
+            span.appendChild(document.createTextNode(text.substring(index, index + query.length)));
+            frag.appendChild(span);
+            lastIndex = index + query.length;
+            index = lowerText.indexOf(query, lastIndex);
+          }
+          
+          frag.appendChild(document.createTextNode(text.substring(lastIndex)));
+          parent.replaceChild(frag, node);
+        }
+      });
+    }
+
+    function removeHighlights(element) {
+      const highlights = element.querySelectorAll(".highlight");
+      highlights.forEach(span => {
+        const parent = span.parentElement;
+        parent.replaceChild(document.createTextNode(span.innerText), span);
+        parent.normalize();
+      });
+    }
+
+    // Sidebar navigation active styling & smooth scrolling
+    function setActive(id) {
+      const navItems = document.querySelectorAll(".nav-item");
+      navItems.forEach(item => item.classList.remove("active"));
+      
+      const activeLi = document.getElementById("li-" + id);
+      if (activeLi) activeLi.classList.add("active");
+    }
+
+    // Dynamic scroll spy to highlight active sidebar section
+    window.addEventListener("scroll", () => {
+      const sections = document.querySelectorAll("main section");
+      let currentSection = "";
+      
+      sections.forEach(section => {
+        const top = section.getBoundingClientRect().top;
+        if (top <= 100) {
+          currentSection = section.id;
+        }
+      });
+
+      if (currentSection) {
+        setActive(currentSection);
+      }
+    });
+  </script>
+</body>
+</html>

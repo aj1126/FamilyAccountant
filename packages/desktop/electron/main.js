@@ -69,7 +69,7 @@ ipcMain.handle('db:getTransactions', () => {
 
 ipcMain.handle('db:addTransaction', (_event, tx) => {
   const stmt = db.prepare(`
-    INSERT INTO transactions
+    INSERT OR REPLACE INTO transactions
       (id, localId, accountId, householdId, amount, currency, description,
        category, transactionDate, syncStatus, createdAt, updatedAt, deletedAt)
     VALUES
@@ -82,4 +82,25 @@ ipcMain.handle('db:addTransaction', (_event, tx) => {
 
 ipcMain.handle('db:updateSyncStatus', (_event, localId, status) => {
   db.prepare('UPDATE transactions SET syncStatus = ? WHERE localId = ?').run(status, localId);
+});
+
+ipcMain.handle('app:openHelp', () => {
+  const { BrowserWindow } = require('electron');
+  const path = require('path');
+  
+  const helpWindow = new BrowserWindow({
+    width: 1000,
+    height: 700,
+    title: 'FamilyAccountant Documentation',
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+    }
+  });
+
+  const localHelpPath = path.join(__dirname, 'user-guide.html');
+  helpWindow.loadFile(localHelpPath).catch((err) => {
+    console.error('Failed to load local help file, loading online pages...', err);
+    helpWindow.loadURL('https://aj1126.github.io/FamilyAccountant/user-guide/');
+  });
 });

@@ -5,8 +5,12 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
+  ManyToOne,
+  JoinColumn,
+  Index,
 } from 'typeorm';
 import { TransactionEntity } from './transaction.entity';
+import { HouseholdEntity } from './household.entity';
 
 @Entity('users')
 export class UserEntity {
@@ -22,6 +26,7 @@ export class UserEntity {
   @Column()
   displayName!: string;
 
+  @Index()
   @Column({ type: 'uuid', nullable: true })
   householdId!: string | null;
 
@@ -33,4 +38,9 @@ export class UserEntity {
 
   @OneToMany(() => TransactionEntity, (t) => t.user)
   transactions!: TransactionEntity[];
+
+  @ManyToOne(() => HouseholdEntity, { onDelete: 'SET NULL', nullable: true })
+  @JoinColumn({ name: 'householdId' })
+  household?: HouseholdEntity | null;
 }
+

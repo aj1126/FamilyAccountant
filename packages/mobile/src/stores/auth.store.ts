@@ -56,11 +56,11 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   logout: async () => {
+    set({ accessToken: null, refreshToken: null, userId: null, householdId: null });
     await SecureStore.deleteItemAsync('accessToken');
     await SecureStore.deleteItemAsync('refreshToken');
     await SecureStore.deleteItemAsync('userId');
     await SecureStore.deleteItemAsync('householdId');
-    set({ accessToken: null, refreshToken: null, userId: null, householdId: null });
   },
 
   setHouseholdId: async (householdId: string) => {

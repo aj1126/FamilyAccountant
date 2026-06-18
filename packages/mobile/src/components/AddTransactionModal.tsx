@@ -27,6 +27,7 @@ export function AddTransactionModal({ visible, onClose }: Props) {
   const [selectedAccountId, setSelectedAccountId] = useState<string | undefined>(undefined);
   const addTransaction = useTransactionStore((s) => s.addTransaction);
   const householdId = useAuthStore((s) => s.householdId);
+  const userId = useAuthStore((s) => s.userId);
 
   const { data: accounts = [] } = useQuery<Account[]>({
     queryKey: ['accounts'],
@@ -40,18 +41,22 @@ export function AddTransactionModal({ visible, onClose }: Props) {
       Alert.alert('Validation', 'Please enter a description and valid amount');
       return;
     }
-    if (!householdId) {
+    if (!householdId || !userId) {
       Alert.alert('No Household', 'Please join or create a household first');
       return;
     }
 
     try {
+      const selectedAccount = accounts.find((a) => a.id === selectedAccountId);
+      const currency = selectedAccount ? selectedAccount.currency : 'USD';
+
       await addTransaction({
         localId: uuidv4(),
         accountId: selectedAccountId,
         householdId,
+        userId,
         amount: parsedAmount,
-        currency: 'USD',
+        currency,
         description,
         category,
         transactionDate: new Date().toISOString().split('T')[0],

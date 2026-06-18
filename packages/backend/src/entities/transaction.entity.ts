@@ -7,8 +7,11 @@ import {
   DeleteDateColumn,
   ManyToOne,
   JoinColumn,
+  Index,
 } from 'typeorm';
 import { UserEntity } from './user.entity';
+import { AccountEntity } from './account.entity';
+import { HouseholdEntity } from './household.entity';
 
 @Entity('transactions')
 export class TransactionEntity {
@@ -18,12 +21,15 @@ export class TransactionEntity {
   @Column({ unique: true })
   localId!: string;
 
+  @Index()
   @Column({ type: 'uuid', nullable: true })
   accountId: string | null = null;
 
+  @Index()
   @Column({ type: 'uuid' })
   householdId!: string;
 
+  @Index()
   @Column({ type: 'uuid' })
   userId!: string;
 
@@ -47,6 +53,7 @@ export class TransactionEntity {
   @Column({ default: '' })
   category!: string;
 
+  @Index()
   @Column({ type: 'date' })
   transactionDate!: string;
 
@@ -65,4 +72,13 @@ export class TransactionEntity {
   @ManyToOne(() => UserEntity, (u) => u.transactions)
   @JoinColumn({ name: 'userId' })
   user!: UserEntity;
+
+  @ManyToOne(() => AccountEntity, { onDelete: 'SET NULL', nullable: true })
+  @JoinColumn({ name: 'accountId' })
+  account?: AccountEntity | null;
+
+  @ManyToOne(() => HouseholdEntity, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'householdId' })
+  household?: HouseholdEntity;
 }
+

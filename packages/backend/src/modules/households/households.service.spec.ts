@@ -75,12 +75,21 @@ describe('HouseholdsService', () => {
   describe('getHousehold', () => {
     it('should return the household when requester is the owner', async () => {
       mockRepo.findOneBy.mockResolvedValue(mockHousehold);
+      usersService.findById.mockResolvedValue({ id: OWNER_ID, householdId: HOUSEHOLD_ID } as any);
       const result = await service.getHousehold(HOUSEHOLD_ID, OWNER_ID);
       expect(result).toEqual(mockHousehold);
     });
 
-    it('should throw ForbiddenException when requester is not the owner', async () => {
+    it('should return the household when requester is a member of the household', async () => {
       mockRepo.findOneBy.mockResolvedValue(mockHousehold);
+      usersService.findById.mockResolvedValue({ id: OTHER_USER_ID, householdId: HOUSEHOLD_ID } as any);
+      const result = await service.getHousehold(HOUSEHOLD_ID, OTHER_USER_ID);
+      expect(result).toEqual(mockHousehold);
+    });
+
+    it('should throw ForbiddenException when requester is not owner and not member', async () => {
+      mockRepo.findOneBy.mockResolvedValue(mockHousehold);
+      usersService.findById.mockResolvedValue({ id: OTHER_USER_ID, householdId: 'different-household-id' } as any);
       await expect(service.getHousehold(HOUSEHOLD_ID, OTHER_USER_ID)).rejects.toBeInstanceOf(ForbiddenException);
     });
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '../services/api.client';
 import { useAuthStore } from '../stores/auth.store';
@@ -18,11 +18,25 @@ export function Debts() {
     queryFn: () => apiClient.get('/debts').then((r) => r.data),
   });
 
+  const { data: members = [] } = useQuery<any[]>({
+    queryKey: ['members'],
+    queryFn: () => apiClient.get('/households/members').then((r) => r.data),
+  });
+
+  const otherMembers = members.filter((m) => m.id !== userId);
+
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
   const [currency, setCurrency] = useState('USD');
   const [direction, setDirection] = useState<DebtDirection>('i_owe');
+  const [counterpartyId, setCounterpartyId] = useState('');
   const [formError, setFormError] = useState('');
+
+  useEffect(() => {
+    if (otherMembers.length > 0 && !counterpartyId) {
+      setCounterpartyId(otherMembers[0].id);
+    }
+  }, [otherMembers, counterpartyId]);
 
   const createMutation = useMutation({
     mutationFn: (body: CreateDebtDto) =>
@@ -33,6 +47,11 @@ export function Debts() {
       setAmount('');
       setCurrency('USD');
       setDirection('i_owe');
+      if (otherMembers.length > 0) {
+        setCounterpartyId(otherMembers[0].id);
+      } else {
+        setCounterpartyId('');
+      }
       setFormError('');
     },
     onError: () => setFormError('Failed to create debt. Please try again.'),
@@ -57,17 +76,28 @@ export function Debts() {
       setFormError('User not identified. Please log in again.');
       return;
     }
-    // TODO (Phase 4.3): replace with proper counterparty user-ID lookup once
-    // multi-user search is built. Until then, both creditorId and debtorId are
-    // set to the current user's ID; the direction field captures who owes whom.
+    if (!counterpartyId) {
+      setFormError('Please select a household member as the counterparty.');
+      return;
+    }
+    
+    const creditorId = direction === 'i_owe' ? counterpartyId : userId;
+    const debtorId = direction === 'i_owe' ? userId : counterpartyId;
+
     createMutation.mutate({
       description: description.trim(),
       amount: parsed,
       currency: currency.trim() || 'USD',
       direction,
-      creditorId: userId,
-      debtorId: userId,
+      creditorId,
+      debtorId,
     });
+  };
+
+  const getCounterpartyName = (debt: Debt) => {
+    const cpId = debt.creditorId === userId ? debt.debtorId : debt.creditorId;
+    const member = members.find((m) => m.id === cpId);
+    return member ? (member.displayName || member.email) : 'Unknown User';
   };
 
   if (isLoading) return <p>Loading...</p>;
@@ -114,6 +144,20 @@ export function Debts() {
               <option key={d.value} value={d.value}>{d.label}</option>
             ))}
           </select>
+          <select
+            style={{ ...inputStyle, flex: 'none', width: 180 }}
+            value={counterpartyId}
+            onChange={(e) => setCounterpartyId(e.target.value)}
+            aria-label="Household Member"
+          >
+            {otherMembers.length === 0 ? (
+              <option value="">No other members</option>
+            ) : (
+              otherMembers.map((m) => (
+                <option key={m.id} value={m.id}>{m.displayName || m.email}</option>
+              ))
+            )}
+          </select>
           <button
             onClick={handleAdd}
             disabled={createMutation.isPending}
@@ -142,7 +186,9 @@ export function Debts() {
                 <td style={tdStyle}>
                   {new Intl.NumberFormat('en-US', { style: 'currency', currency: debt.currency }).format(debt.amount)}
                 </td>
-                <td style={tdStyle}>{DIRECTIONS.find((d) => d.value === debt.direction)?.label ?? debt.direction}</td>
+                <td style={tdStyle}>
+                  {debt.direction === 'i_owe' ? `I owe ${getCounterpartyName(debt)}` : `${getCounterpartyName(debt)} owes me`}
+                </td>
                 <td style={tdStyle}>
                   <span style={{ color: debt.settled ? '#16a34a' : '#dc2626', fontWeight: 600 }}>
                     {debt.settled ? 'Settled' : 'Outstanding'}

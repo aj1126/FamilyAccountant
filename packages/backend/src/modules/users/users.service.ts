@@ -30,4 +30,8 @@ export class UsersService {
   async updateHousehold(userId: string, householdId: string): Promise<void> {
     await this.repo.update(userId, { householdId });
   }
+
+  async findByHousehold(householdId: string): Promise<UserEntity[]> {
+    return this.repo.findBy({ householdId });
+  }
 }

@@ -3,6 +3,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
 import { TransactionEntity } from '../../entities/transaction.entity';
+import { AccountEntity } from '../../entities/account.entity';
 
 const HOUSEHOLD_A = 'aaaa0000-0000-0000-0000-000000000001';
 const HOUSEHOLD_B = 'bbbb0000-0000-0000-0000-000000000002';
@@ -37,6 +38,10 @@ describe('TransactionsService', () => {
     update: jest.fn(),
     softDelete: jest.fn(),
   };
+  const mockAccountRepo = {
+    findOneBy: jest.fn(),
+    save: jest.fn(),
+  };
 
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -44,6 +49,7 @@ describe('TransactionsService', () => {
       providers: [
         TransactionsService,
         { provide: getRepositoryToken(TransactionEntity), useValue: mockRepo },
+        { provide: getRepositoryToken(AccountEntity), useValue: mockAccountRepo },
       ],
     }).compile();
     service = module.get(TransactionsService);
