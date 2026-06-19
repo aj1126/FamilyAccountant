@@ -1,5 +1,8 @@
 # FamilyAccountant
 
+[![CI](https://github.com/aj1126/FamilyAccountant/actions/workflows/ci.yml/badge.svg)](https://github.com/aj1126/FamilyAccountant/actions/workflows/ci.yml)
+[![Auto-Update README](https://github.com/aj1126/FamilyAccountant/actions/workflows/update-readme.yml/badge.svg)](https://github.com/aj1126/FamilyAccountant/actions/workflows/update-readme.yml)
+
 A cross-platform home finance management app for families and roommates. Tracks debts, credits, accounts, and payments with offline-first sync across Android and Windows 11.
 
 ## Architecture
