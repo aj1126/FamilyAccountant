@@ -24,13 +24,6 @@ export class TransactionsService {
     return account;
   }
 
-  private async adjustAccountBalance(accountId: string | null | undefined, delta: number): Promise<void> {
-    if (!accountId) return;
-    const account = await this.accountRepo.findOneBy({ id: accountId });
-    if (!account) return;
-    account.balance = Number(account.balance) + delta;
-    await this.accountRepo.save(account);
-  }
 
   async create(
     userId: string,
@@ -43,8 +36,6 @@ export class TransactionsService {
     const tx = this.repo.create({ ...dto, userId, householdId, syncStatus: 'synced' });
     const saved = await this.repo.save(tx);
     
-    // Adjust account balance (signed transaction amount)
-    await this.adjustAccountBalance(dto.accountId, dto.amount);
     
     return saved;
   }
@@ -69,24 +60,8 @@ export class TransactionsService {
       await this.validateAccount(targetAccountId, householdId);
     }
 
-    const oldAmount = tx.amount;
-    const oldAccountId = tx.accountId;
-    const newAmount = dto.amount !== undefined ? dto.amount : tx.amount;
-    const newAccountId = dto.accountId !== undefined ? dto.accountId : tx.accountId;
-
     await this.repo.update(id, dto);
     const updated = await this.findOne(id, householdId);
-
-    // Adjust balances:
-    if (oldAccountId !== newAccountId) {
-      // Refund old account
-      await this.adjustAccountBalance(oldAccountId, -oldAmount);
-      // Charge new account
-      await this.adjustAccountBalance(newAccountId, newAmount);
-    } else if (oldAmount !== newAmount) {
-      // Same account, different amount: adjust by delta
-      await this.adjustAccountBalance(oldAccountId, newAmount - oldAmount);
-    }
 
     return updated;
   }
@@ -95,7 +70,5 @@ export class TransactionsService {
     const tx = await this.findOne(id, householdId);
     await this.repo.softDelete(id);
     
-    // Adjust account balance (refund transaction amount)
-    await this.adjustAccountBalance(tx.accountId, -tx.amount);
   }
 }

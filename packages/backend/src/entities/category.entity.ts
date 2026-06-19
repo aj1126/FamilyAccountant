@@ -27,10 +27,10 @@ export class CategoryEntity {
   @Column()
   name!: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   color!: string | null;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   icon!: string | null;
 
   @CreateDateColumn()
