@@ -69,6 +69,5 @@ export class TransactionsService {
   async softDelete(id: string, householdId: string): Promise<void> {
     await this.findOne(id, householdId);
     await this.repo.softDelete(id);
-    
   }
 }

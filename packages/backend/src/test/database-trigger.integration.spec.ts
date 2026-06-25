@@ -89,8 +89,9 @@ function runTests() {
         SELECT trigger_name
         FROM information_schema.triggers
         WHERE event_object_table = 'transactions'
+          AND trigger_name = 'trg_update_account_balance'
       `);
-      expect(triggers.length).toBeGreaterThan(0);
+      expect(triggers.length).toBe(1);
     });
 
     afterAll(async () => {
