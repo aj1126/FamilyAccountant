@@ -84,6 +84,13 @@ function runTests() {
       accountRepo = module.get<Repository<AccountEntity>>(getRepositoryToken(AccountEntity));
       householdRepo = module.get<Repository<HouseholdEntity>>(getRepositoryToken(HouseholdEntity));
       userRepo = module.get<Repository<UserEntity>>(getRepositoryToken(UserEntity));
+
+      const triggers = await txRepo.query(`
+        SELECT trigger_name
+        FROM information_schema.triggers
+        WHERE event_object_table = 'transactions'
+      `);
+      expect(triggers.length).toBeGreaterThan(0);
     });
 
     afterAll(async () => {
@@ -93,11 +100,14 @@ function runTests() {
     });
 
     beforeEach(async () => {
-      // Clear data in correct order to avoid FK violations
-      await txRepo.delete({});
-      await accountRepo.delete({});
-      await userRepo.delete({});
-      await householdRepo.delete({});
+      await txRepo.query(`
+        TRUNCATE TABLE
+          transactions,
+          accounts,
+          users,
+          households
+        RESTART IDENTITY CASCADE
+      `);
 
       // Create a test user first (to set as owner of household)
       const user = userRepo.create({
