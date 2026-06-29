@@ -86,7 +86,7 @@ function runTests() {
       userRepo = module.get<Repository<UserEntity>>(getRepositoryToken(UserEntity));
 
       const triggers = await txRepo.query(`
-        SELECT trigger_name
+        SELECT DISTINCT trigger_name
         FROM information_schema.triggers
         WHERE event_object_table = 'transactions'
           AND trigger_name = 'trg_update_account_balance'
