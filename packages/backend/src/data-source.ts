@@ -5,6 +5,8 @@ import { AccountEntity } from './entities/account.entity';
 import { TransactionEntity } from './entities/transaction.entity';
 import { DebtEntity } from './entities/debt.entity';
 import { PaymentEntity } from './entities/payment.entity';
+import { CategoryEntity } from './entities/category.entity';
+import { BudgetEntity } from './entities/budget.entity';
 import * as dotenv from 'dotenv';
 import * as path from 'path';
 
@@ -22,6 +24,8 @@ export const AppDataSource = new DataSource({
     TransactionEntity,
     DebtEntity,
     PaymentEntity,
+    CategoryEntity,
+    BudgetEntity,
   ],
   migrations: [path.join(__dirname, '/migrations/*{.ts,.js}')],
   synchronize: false,
