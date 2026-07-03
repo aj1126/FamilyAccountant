@@ -29,7 +29,7 @@
     "concurrently": "^8.2.2",
     "electron": "^41.0.0",
     "electron-builder": "^24.13.3",
-    "typescript": "^5.4.5",
+    "typescript": "^6.0.3",
     "vite": "^6.4.3"
   },
   "build": {
