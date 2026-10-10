@@ -17,6 +17,8 @@ import { AccountEntity } from './entities/account.entity';
 import { TransactionEntity } from './entities/transaction.entity';
 import { DebtEntity } from './entities/debt.entity';
 import { PaymentEntity } from './entities/payment.entity';
+import { CategoryEntity } from './entities/category.entity';
+import { BudgetEntity } from './entities/budget.entity';
 
 @Module({
   imports: [
@@ -37,6 +39,8 @@ import { PaymentEntity } from './entities/payment.entity';
           TransactionEntity,
           DebtEntity,
           PaymentEntity,
+          CategoryEntity,
+          BudgetEntity,
         ],
         synchronize: false,
         migrationsRun: true,

@@ -30,6 +30,9 @@ export class UserEntity {
   @Column({ type: 'uuid', nullable: true })
   householdId!: string | null;
 
+  @Column({ default: 'member' })
+  role?: string;
+
   @CreateDateColumn()
   createdAt!: Date;
 
