@@ -18,6 +18,9 @@ export class HouseholdEntity {
   @Column()
   name!: string;
 
+  @Column({ default: 'USD' })
+  currency?: string;
+
   @Index()
   @Column({ type: 'uuid' })
   ownerId!: string;
