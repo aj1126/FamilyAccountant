@@ -12,7 +12,13 @@ updates:
     # Check the npm registry for updates every day (weekdays)
     schedule:
       interval: "weekly"
-      
+    # NestJS packages share one major version: bump them together, or a split major
+    # (common 12 with core/testing 11) breaks the backend tests (see #76).
+    groups:
+      nestjs:
+        patterns:
+          - "@nestjs/*"
+
   # Enable version updates for GitHub Actions
   - package-ecosystem: "github-actions"
     # Workflow files stored in the default location of `.github/workflows`
