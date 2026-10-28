@@ -1,0 +1,22 @@
+chore(deps): clear the critical and high Dependabot alerts (pnpm overrides, electron-builder 26, expo-cli tar patch)
+
+Open alerts at b7ddc5a: 125 (3 critical, 69 high). This change closes 3/3 critical and
+67/69 high by lockfile projection; pnpm audit goes from 3 critical / 91 high to 0 / 4.
+
+- pnpm.overrides: same-major patched floors for the transitive packages (brace-expansion,
+  js-yaml, ws, fast-uri, multer, proxy-addr, body-parser, undici, nanoid, postcss, ...),
+  plus three majors the Expo 51 tooling was checked against: tar 6 -> 7,
+  @xmldom/xmldom 0.7 -> 0.8, turbo-stream 2 -> 3.
+- desktop: electron-builder 24 -> 26 (app-builder-lib, builder-util-runtime, tmp, tar);
+  concurrently 10.0.6 (shell-quote 1.12.0).
+- patches/@expo__cli@0.18.31.patch: @expo/cli loads tar through Babel's interop, which
+  returns tar 7's ESM-flagged module without a default export; the patch requires tar
+  directly in utils/tar.js and utils/npm.js. Retire it with the Expo SDK upgrade.
+- package-lock.json removed and ignored: CI, scripts and docs use pnpm only; the npm
+  lockfile (last touched 2026-04-25) carried 10 of the alerts.
+
+Left open on purpose: image-size (2 high; the fix is 2.x, which metro 0.80 cannot call),
+and the audit-only zod (4.x only, Expo 51's experimental React compiler) and electron
+(41 -> 42 major, its own Dependabot PRs).
+
+Spec: B:/_handoff/specs/SPEC-FA-deps.md (NX-326).
