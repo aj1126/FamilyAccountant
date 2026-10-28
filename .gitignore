@@ -16,3 +16,6 @@ release/
 
 # Turborepo
 .turbo/
+
+# pnpm only (packageManager, CI --frozen-lockfile); an npm lockfile is never read
+package-lock.json
