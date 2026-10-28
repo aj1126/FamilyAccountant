@@ -39,6 +39,25 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm turbo run build --filter=@family-accountant/shared --filter=@family-accountant/backend
 
+  # build covers shared + backend only, so a major bump in desktop or mobile was proved by lint alone.
+  # Electron's main process (electron/main.js) is plain JS and is not checked here.
+  typecheck-clients:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @family-accountant/desktop exec tsc --noEmit -p tsconfig.json
+      - run: pnpm --filter @family-accountant/mobile exec tsc --noEmit -p tsconfig.json
+
   test-backend:
     runs-on: ubuntu-latest
     permissions:
