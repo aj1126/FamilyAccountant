@@ -27,7 +27,7 @@
     "@types/uuid": "^9.0.8",
     "@vitejs/plugin-react": "^4.3.0",
     "concurrently": "^10.0.6",
-    "electron": "^42.11.16",
+    "electron": "^45.2.2",
     "electron-builder": "^26.18.0",
     "typescript": "^5.4.5",
     "vite": "^6.4.4"
