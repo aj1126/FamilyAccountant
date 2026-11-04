@@ -1,0 +1,26 @@
+diff --git a/build/src/utils/npm.js b/build/src/utils/npm.js
+index a49faac0ba81f0a00d19e8427434cf013c9b4769..75c8e758ec32c093b7b9fd84a79cd9a80fdc8787 100644
+--- a/build/src/utils/npm.js
++++ b/build/src/utils/npm.js
+@@ -60,7 +60,7 @@ function _stream() {
+     return data;
+ }
+ function _tar() {
+-    const data = /*#__PURE__*/ _interopRequireDefault(require("tar"));
++    const data = /*#__PURE__*/ { default: require("tar") };
+     _tar = function() {
+         return data;
+     };
+diff --git a/build/src/utils/tar.js b/build/src/utils/tar.js
+index 8bf12d812646724089f6cd265b16093e8f518570..2c92cedec0f7fbd30459056827bebe234262c8a5 100644
+--- a/build/src/utils/tar.js
++++ b/build/src/utils/tar.js
+@@ -14,7 +14,7 @@ function _spawnAsync() {
+     return data;
+ }
+ function _tar() {
+-    const data = /*#__PURE__*/ _interopRequireDefault(require("tar"));
++    const data = /*#__PURE__*/ { default: require("tar") };
+     _tar = function() {
+         return data;
+     };
