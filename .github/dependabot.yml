@@ -18,6 +18,16 @@ updates:
       nestjs:
         patterns:
           - "@nestjs/*"
+    # Breaking upgrades are done on purpose as their own task, not by Dependabot (AJ 2026-11-07):
+    # NestJS 11 -> 12 failed the backend tests (#83); react-native 0.74 -> 0.88 failed the
+    # client typecheck (#102). react-native is 0.x, and Dependabot reads x.y.z as
+    # major.minor.patch, so 0.74 -> 0.88 is a "minor" bump: its minors are ignored too.
+    # Patches still arrive, and security updates ignore update-types, so they still arrive.
+    ignore:
+      - dependency-name: "@nestjs/*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "react-native"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
 
   # Enable version updates for GitHub Actions
   - package-ecosystem: "github-actions"
